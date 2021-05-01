@@ -1,3 +1,4 @@
+using Antiques_Auction_WebApp.Services;
 using Antiques_Auction_WebApp.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -24,6 +25,7 @@ namespace Antiques_Auction_WebApp
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection(nameof(DatabaseSettings)));
             services.AddSingleton<IDatabaseSettings>(x => x.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+            services.AddSingleton<AntiqueItemService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
