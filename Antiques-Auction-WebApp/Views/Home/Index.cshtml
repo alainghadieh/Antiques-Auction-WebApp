@@ -1,8 +1,69 @@
-﻿@{
+﻿@model IEnumerable<AntiqueItem>
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h4 class="card-title">Antique Items For Sale</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables" class="table-bordered table" style="text-align:center;">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Description</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr AdManagerID="@item.Id" style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.Path" asp-append-version="true"
+                                                class="img-fluid mb-2" alt="white sample" style="width:20px"></th>
+                                            <th>@item.Name</th>
+                                            <th>@item.Price</th>
+                                            <th>@item.Description</th>
+                                            <th>
+                                                <button class="btn btn-primary btn-border" style="padding:6px !important;"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                    Bid Now
+                                                </button>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('#basic-datatables').DataTable({
+            "order": [[ 2, "desc" ]],
+            pageLength: 10,
+            aLengthMenu: [
+                [10, 50, 100, -1],
+                [10, 50, 100, "All"]
+            ],
+            iDisplayLength: -1
+        });
+    });
+</script>
