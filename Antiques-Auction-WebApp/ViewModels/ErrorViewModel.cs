@@ -1,6 +1,4 @@
-using System;
-
-namespace Antiques_Auction_WebApp.Models
+namespace Antiques_Auction_WebApp.ViewModels
 {
     public class ErrorViewModel
     {
