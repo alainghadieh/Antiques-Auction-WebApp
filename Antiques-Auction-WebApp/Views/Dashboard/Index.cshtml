@@ -1,0 +1,73 @@
+@model IEnumerable<AntiqueItem>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<a class="create" asp-action="Create">Add New Antique item</a>
+<hr />
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h4 class="card-title">All Antique Items</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables" class="table-bordered table" style="text-align:center;">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Description</th>
+                                        <th>Auction Opened</th>
+                                        <th>Auction Closed</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr AdManagerID="@item.Id" style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.Path" asp-append-version="true"
+                                                class="img-fluid mb-2" alt="white sample" style="width:20px"></th>
+                                            <th>@item.Name</th>
+                                            <th>@item.Price</th>
+                                            <th>@item.Description</th>
+                                            <th>@item.AuctionOpenDateTime</th>
+                                            <th>@item.AuctionCloseDateTime</th>
+                                            <th><a asp-action="Edit" asp-route-id="@item.Id">edit</a></th>
+                                            <th><a asp-action="Delete" asp-route-id="@item.Id">delete</a></th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#basic-datatables').DataTable({
+            "order": [[ 2, "desc" ]],
+            pageLength: 10,
+            aLengthMenu: [
+                [10, 50, 100, -1],
+                [10, 50, 100, "All"]
+            ],
+            iDisplayLength: -1
+        });
+    });
+</script>
