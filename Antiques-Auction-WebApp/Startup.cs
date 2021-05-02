@@ -26,6 +26,7 @@ namespace Antiques_Auction_WebApp
             services.Configure<DatabaseSettings>(Configuration.GetSection(nameof(DatabaseSettings)));
             services.AddSingleton<IDatabaseSettings>(x => x.GetRequiredService<IOptions<DatabaseSettings>>().Value);
             services.AddSingleton<AntiqueItemService>();
+            services.AddSingleton<BidService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
