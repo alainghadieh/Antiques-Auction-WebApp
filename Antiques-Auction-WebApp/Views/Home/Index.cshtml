@@ -1,6 +1,8 @@
-﻿@model IEnumerable<AntiqueItem>
+﻿@using System.Globalization
+@model IEnumerable<AntiqueItem>
 @{
     ViewData["Title"] = "Home Page";
+    CultureInfo ci = new CultureInfo("en-us");
 }
 
 <div class="content">
@@ -11,7 +13,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-4">
-                                <h4 class="card-title">Antique Items For Sale</h4>
+                                <h4 class="card-title align-middle" style="margin-bottom:0px;">Antique Items For Sale</h4>
                             </div>
                         </div>
                     </div>
@@ -30,18 +32,14 @@
                                 <tbody>
                                     @foreach (var item in Model)
                                     {
-                                        <tr AdManagerID="@item.Id" style="text-align:center">
-                                            <th><img src="~/AntiqueItemImages/@item.Path" asp-append-version="true"
-                                                class="img-fluid mb-2" alt="white sample" style="width:20px"></th>
-                                            <th>@item.Name</th>
-                                            <th>@item.Price</th>
-                                            <th>@item.Description</th>
-                                            <th>
-                                                <button class="btn btn-primary btn-border" style="padding:6px !important;"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                    Bid Now
-                                                </button>
-                                            </th>
+                                        <tr style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.Path" class="align-middle"
+                                                style="width:100px"></th>
+                                            <th class="align-middle">@item.Name</th>
+                                            <th class="align-middle">@item.Price.ToString("C", ci)</th>
+                                            <th class="align-middle">@item.Description</th>
+                                            <th class="align-middle"><a class="btn btn-primary" asp-route="antiqueItemRoute"
+                                                asp-route-id="@item.Id">Bid Now</a></th>
                                         </tr>
                                     }
                                 </tbody>
@@ -54,10 +52,16 @@
     </div>
 </div>
 
+<script src="../lib/jquery/dist/jquery.min.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#basic-datatables').DataTable({
-            "order": [[ 2, "desc" ]],
+            "order": [[2, "desc"]],
+            "columnDefs": [
+                { searchable: false, targets: [0, 2, 4] },
+                { orderable: false, targets: [0, 1, 3, 4] }
+            ],
             pageLength: 10,
             aLengthMenu: [
                 [10, 50, 100, -1],
