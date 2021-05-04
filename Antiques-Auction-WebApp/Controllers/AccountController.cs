@@ -7,7 +7,21 @@ namespace Antiques_Auction_WebApp.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Login() => View();
+        public IActionResult Login()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+                if (User.IsInRole("Regular"))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            return View();
+        }
 
         [HttpPost]
         public IActionResult Login(string userName, string password)
