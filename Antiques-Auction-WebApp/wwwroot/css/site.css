@@ -1,7 +1,4 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
+﻿a.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
@@ -18,7 +15,8 @@ a {
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
@@ -29,6 +27,7 @@ a {
 html {
   font-size: 14px;
 }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -38,6 +37,7 @@ html {
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
@@ -62,10 +62,98 @@ body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
 }
+
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+  line-height: 60px;
+  /* Vertically center the text there */
 }
+
+.card {
+  word-wrap: normal;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.modal-content {
+  padding: 25px;
+  min-height: 400px;
+  border-radius: 16px;
+  width: 100%;
+}
+
+.modal-dialog .table {
+  font-family: 'Poppins', sans-serif;
+}
+
+.disabled-link {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.disabled-link:hover {
+  cursor: not-allowed;
+}
+
+#ItemImage {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#ItemImage:hover {
+  opacity: 0.7;
+}
+
+.img-wrapper::after {
+  font-size: 11px;
+  content: 'Click image to expand';
+  display: block;
+  text-align: center;
+}
+
+.paginate_button {
+  border-radius: 100% !important;
+}
+
+.table thead th {
+  vertical-align: middle;
+  font-family: 'Poppins', sans-serif;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.dataTables_info,
+.dataTables_length,
+.dataTables_filter,
+.paginate_button {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* fonts 
+-------------------------------------------------- */
+.oswald {
+  font-family: 'Oswald', sans-serif;
+}
+
+.roboto-condensed {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* fonts 
+-------------------------------------------------- */
