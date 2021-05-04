@@ -4,8 +4,6 @@ using Microsoft.Extensions.Logging;
 using Antiques_Auction_WebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Antiques_Auction_WebApp.Services;
-using System.Collections.Generic;
-using Antiques_Auction_WebApp.Models;
 
 namespace Antiques_Auction_WebApp.Controllers
 {
@@ -20,9 +18,10 @@ namespace Antiques_Auction_WebApp.Controllers
             _antqSvc = antiqueItemService;
             _logger = logger;
         }
-
-        public IActionResult Index()  
+        [HttpGet]
+        public IActionResult Index(bool isSuccess = false)  
         {  
+            ViewBag.IsSuccess = isSuccess;
             return View(_antqSvc.GetItemsForSale());  
         }  
 
