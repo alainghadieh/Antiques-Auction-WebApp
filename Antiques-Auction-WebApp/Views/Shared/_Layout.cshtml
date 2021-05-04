@@ -8,15 +8,19 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" />
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
     </head>
 
     <body>
         <header>
             <nav
-                class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                class="navbar navbar-dark bg-dark navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
                 <div class="container">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Antiques Auction
-                        WebApp</a>
+                    <a class="navbar-brand text-white">Antiques Online Auction</a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -24,8 +28,14 @@
                     <div class="navbar-collapse collapse justify-content-between">
                         <ul class="navbar-nav mr-auto">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                                    asp-action="Index">Home</a>
+                                @if(User.IsInRole("Admin"))
+                                {
+                                    <a class="nav-link text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                                } 
+                                else if (User.IsInRole("Regular"))
+                                {
+                                    <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Home</a>
+                                }
                             </li>
                         </ul>
                         <partial name="_LoginPartial" />
@@ -40,7 +50,7 @@
 
         <footer class="border-top footer text-muted">
             <div class="container">
-                &copy; 2021 - Antiques Auction WebApp 
+                &copy; 2021 - Antiques Online Auction 
             </div>
         </footer>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
