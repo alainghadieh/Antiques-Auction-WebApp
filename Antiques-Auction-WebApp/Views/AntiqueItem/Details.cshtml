@@ -1,0 +1,224 @@
+@using System.Globalization
+@model Antiques_Auction_WebApp.Models.Entities.Bid
+@{
+    Layout = "_Layout";
+    CultureInfo ci = new CultureInfo("en-us");
+    ViewData["Title"] = "Antique Item detail " + ViewBag.ViewModel.AntiqueItem.Name;
+    int bidCount = ViewBag.ViewModel.Bids.Count;
+    string toggleDisableAnchor = bidCount == 0 ? "disabled-link" : "";
+    string hideBidding = ViewBag.NotAllowedToBid ? "d-none" : "";
+    string hideDoNotBidAlert = ViewBag.NotAllowedToBid ? "" : "d-none";
+    int highestBidOnItem = ViewBag.highestBidOnItem??0;
+}
+<div class="container">
+    <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="window.location='@Url.Action("Index", "Home")'"><i class="fas fa-arrow-left"></i> go back</button>
+    <div class="row">
+        <div class="col-sm-4 col-md-7 col-lg-7">
+            <div class="card">
+                <img class="center" id="ItemImage" data-toggle="modal" data-target="#ImageModal"
+                    src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItem.ImageUrl">
+                <div class="card-body">
+                    <h3 class="card-text">@ViewBag.ViewModel.AntiqueItem.Name</h3>
+                    <h5 class="card-text">Description</h5>
+                    <p class="card-text">@ViewBag.ViewModel.AntiqueItem.Description</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8 col-md-5 col-lg-5">
+            <div class="card" style="">
+                <div class="card-body">
+                    <h4 class="roboto-condensed" style="margin-bottom: 15px;">Auction Time Left</h4>
+                    <div class="card-deck d-flex flex-row justify-content-around">
+                        <div class="card text-center bg-dark text-light" style="width: 4rem;">
+                            <div class="card-body">
+                                <div id="days" class="card-title oswald"></div>
+                                <div class="card-text oswald"><small>DAYS</small></div>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-dark text-light" style="width: 4rem;">
+                            <div class="card-body">
+                                <div id="hours" class="card-title oswald"></div>
+                                <div class="card-text oswald"><small>HRS</small></div>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-dark text-light" style="width: 4rem;">
+                            <div class="card-body">
+                                <div id="minutes" class="card-title oswald"></div>
+                                <div class="card-text oswald"><small>MINS</small></div>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-dark text-light" style="width: 4rem;">
+                            <div class="card-body">
+                                <div id="seconds" class="card-title oswald"></div>
+                                <div class="card-text oswald"><small>SECS</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <h6 class="roboto-condensed" style="font-weight: 900;">Ends
+                        @ViewBag.ViewModel.AntiqueItem.AuctionCloseDateTime.ToString("f",
+                        CultureInfo.CreateSpecificCulture("en-US"))</h6>
+                    </div> 
+                    <hr />
+                    @if (bidCount == 0)
+                    {
+                        <div class="center card-body" style="text-align: center;">
+                            <h2>@ViewBag.ViewModel.AntiqueItem.Price.ToString("C", ci)</h2>
+                            <h5 class="poppins">Starting Bid</h5>
+                            <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
+                            data-toggle="modal" data-target="#BidHistory">View All Bids
+                                (@ViewBag.ViewModel.Bids.Count)</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="center card-body" style="text-align: center !important;">
+                            <h2>@highestBidOnItem.ToString("C", ci)</h2>
+                            <h5 class="poppins" style="text-align:center;">Current Highest Bid</h5>
+                            <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
+                            data-toggle="modal" data-target="#BidHistory">View All Bids
+                                (@ViewBag.ViewModel.Bids.Count)</a>
+                        </div>
+                    }
+                    <div class="roboto-condensed text-danger @hideDoNotBidAlert card-body">
+                        <p style="margin-bottom:0px"><strong>You are not allowed to bid at this
+                                time!</strong></p>
+                        <ul>
+                            <li>
+                                <small>You have already placed a bid on this item</small>
+                            </li>
+                            <li>
+                                <small>The higgest bid across the system is placed on this item</small>
+                            </li>
+                        </ul>
+                    </div>
+                    <form method="post" asp-action="CreateBid" asp-controller="AntiqueItem">
+                        <fieldset class="@hideBidding card-body">
+                            <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
+                            <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
+                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItem.Id">
+
+                            <div class="input-group btn-group input-group-lg" role="group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                <input class="form-control" asp-for="Amount" min="@ViewBag.MinAmountAllowed"
+                                    max="@ViewBag.MaxAmountAllowed" value="@ViewBag.MinAmountAllowed">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">.00</span>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="form-group form-check">
+                                <input class="form-check-input" asp-for="AutoBiddingEnabled">
+                                <label class="form-check-label roboto-condensed" asp-for="AutoBiddingEnabled"></label>
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-lg btn-block poppins"
+                                style="font-size: 22px;">bid
+                                now</button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #region modals -->
+<div class="modal fade" id="BidHistory" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size:30px;font-weight:300;padding-right:2px;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4 class="poppins">Bid History</h4>
+                <hr/>
+                <div class="table-responsive pt-2">
+                    <table class="table table-dark table-striped table-hover" style="text-align:center;">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Bidder</th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bid in ViewBag.ViewModel.Bids)
+                            {
+                                <tr style="text-align:center">
+                                    <th scope="row">@bid.CreatedAt.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))
+                                    </th>
+                                    <th scope="row">@bid.Bidder</th>
+                                    <th scope="row">@bid.Amount.ToString("C", ci)</th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ImageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size:30px;font-weight:300;padding-right:2px;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItem.ImageUrl" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
+
+<script src="../../lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#ItemImage').each(function (i, e) {
+            $(e).wrap('<div class="img-wrapper"></div>');
+        });
+    })
+</script>
+
+<script>
+    var dt = '@ViewData["RemainingTime"]';
+    var dateAr = dt.split('-');
+    var newDate = dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2];
+    var end = new Date(dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2]);
+
+    var _second = 1000;
+    var _minute = _second * 60;
+    var _hour = _minute * 60;
+    var _day = _hour * 24;
+    var timer;
+
+    function showRemaining() {
+        var now = new Date();
+        var distance = end - now;
+        if (distance < 0) {
+            clearInterval(timer);
+            $('#timecountdown').html('Count Down Ended!');
+            window.location.href = '/Home/index';
+            return;
+        }
+        var _days = Math.floor(distance / _day);
+        var _hours = Math.floor((distance % _day) / _hour);
+        var _minutes = Math.floor((distance % _hour) / _minute);
+        var _seconds = Math.floor((distance % _minute) / _second);
+        $('#days').html(_days);
+        $('#hours').html(_hours);
+        $('#minutes').html(_minutes)
+        $('#seconds').html(_seconds)
+    }
+    timer = setInterval(showRemaining, 1000);
+</script>
+
