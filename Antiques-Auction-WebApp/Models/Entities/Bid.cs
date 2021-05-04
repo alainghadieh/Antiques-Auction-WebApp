@@ -1,8 +1,9 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Antiques_Auction_WebApp.Models
+namespace Antiques_Auction_WebApp.Models.Entities
 {
     public class Bid
     {
@@ -11,7 +12,10 @@ namespace Antiques_Auction_WebApp.Models
         public string Id { get; set; }
         public string Bidder { get; set; }
         public string AntiqueItemId { get; set; }
-        public double Amount { get; set; }
+        [Required]
+        public int Amount { get; set; }
+        [Display(Name = "Allow Auto-Bidding")]
+        public bool AutoBiddingEnabled { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

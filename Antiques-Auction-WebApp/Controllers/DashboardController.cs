@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Antiques_Auction_WebApp.Models;
+using Antiques_Auction_WebApp.Models.Entities;
 using Antiques_Auction_WebApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

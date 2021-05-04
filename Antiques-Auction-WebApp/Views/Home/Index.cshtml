@@ -1,11 +1,20 @@
 ﻿@using System.Globalization
-@model IEnumerable<AntiqueItem>
+@model List<Antiques_Auction_WebApp.Models.Entities.AntiqueItem>
 @{
     ViewData["Title"] = "Home Page";
     CultureInfo ci = new CultureInfo("en-us");
 }
 
 <div class="content">
+    @if (ViewBag.IsSuccess == true)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            You have placed your bid successfully. <br />
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -33,7 +42,7 @@
                                     @foreach (var item in Model)
                                     {
                                         <tr style="text-align:center">
-                                            <th><img src="~/AntiqueItemImages/@item.Path" class="align-middle"
+                                            <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
                                                 style="width:100px"></th>
                                             <th class="align-middle">@item.Name</th>
                                             <th class="align-middle">@item.Price.ToString("C", ci)</th>
