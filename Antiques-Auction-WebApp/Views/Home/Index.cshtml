@@ -45,7 +45,7 @@
                                             <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
                                                 style="width:100px"></th>
                                             <th class="align-middle">@item.Name</th>
-                                            <th class="align-middle">@item.Price.ToString("C", ci)</th>
+                                            <th class="align-middle">@item.Price.ToString("C0", ci)</th>
                                             <th class="align-middle">@item.Description</th>
                                             <th class="align-middle"><a class="btn btn-primary" asp-route="antiqueItemRoute"
                                                 asp-route-id="@item.Id">Bid Now</a></th>

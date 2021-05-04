@@ -3,7 +3,7 @@
 @{
     Layout = "_Layout";
     CultureInfo ci = new CultureInfo("en-us");
-    ViewData["Title"] = "Antique Item detail " + ViewBag.ViewModel.AntiqueItem.Name;
+    ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.AntiqueItem.Name;
     int bidCount = ViewBag.ViewModel.Bids.Count;
     string toggleDisableAnchor = bidCount == 0 ? "disabled-link" : "";
     string hideBidding = ViewBag.NotAllowedToBid ? "d-none" : "";
@@ -64,7 +64,7 @@
                     @if (bidCount == 0)
                     {
                         <div class="center card-body" style="text-align: center;">
-                            <h2>@ViewBag.ViewModel.AntiqueItem.Price.ToString("C", ci)</h2>
+                            <h1>@ViewBag.ViewModel.AntiqueItem.Price.ToString("C0", ci)</h1>
                             <h5 class="poppins">Starting Bid</h5>
                             <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
                             data-toggle="modal" data-target="#BidHistory">View All Bids
@@ -74,7 +74,7 @@
                     else
                     {
                         <div class="center card-body" style="text-align: center !important;">
-                            <h2>@highestBidOnItem.ToString("C", ci)</h2>
+                            <h1>@highestBidOnItem.ToString("C0", ci)</h1>
                             <h5 class="poppins" style="text-align:center;">Current Highest Bid</h5>
                             <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
                             data-toggle="modal" data-target="#BidHistory">View All Bids
