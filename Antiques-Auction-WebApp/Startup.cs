@@ -27,7 +27,8 @@ namespace Antiques_Auction_WebApp
             services.AddSingleton<IDatabaseSettings>(x => x.GetRequiredService<IOptions<DatabaseSettings>>().Value);
             services.AddSingleton<AntiqueItemService>();
             services.AddSingleton<BidService>();
-
+            services.AddSingleton<AutoBidConfigService>();
+            
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
