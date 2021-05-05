@@ -1,10 +1,10 @@
 @using System.Globalization
-@model Antiques_Auction_WebApp.Models.Entities.Bid
+@model Antiques_Auction_WebApp.ViewModels.BidViewModel
 @{
     Layout = "_Layout";
     CultureInfo ci = new CultureInfo("en-us");
-    ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.AntiqueItem.Name;
-    int bidCount = ViewBag.ViewModel.Bids.Count;
+    ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.AntiqueItemViewModel.Name;
+    int bidCount = ViewBag.ViewModel.BidViewModels.Count;
     string toggleDisableAnchor = bidCount == 0 ? "disabled-link" : "";
     string hideBidding = ViewBag.NotAllowedToBid ? "d-none" : "";
     string hideDoNotBidAlert = ViewBag.NotAllowedToBid ? "" : "d-none";
@@ -16,11 +16,11 @@
         <div class="col-sm-4 col-md-7 col-lg-7">
             <div class="card">
                 <img class="center" id="ItemImage" data-toggle="modal" data-target="#ImageModal"
-                    src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItem.ImageUrl" style="width:100%;">
+                    src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItemViewModel.ImageUrl" style="width:100%;">
                 <div class="card-body">
-                    <h3 class="card-text">@ViewBag.ViewModel.AntiqueItem.Name</h3>
+                    <h3 class="card-text">@ViewBag.ViewModel.AntiqueItemViewModel.Name</h3>
                     <h5 class="card-text">Description</h5>
-                    <p class="card-text">@ViewBag.ViewModel.AntiqueItem.Description</p>
+                    <p class="card-text">@ViewBag.ViewModel.AntiqueItemViewModel.Description</p>
                 </div>
             </div>
         </div>
@@ -57,18 +57,18 @@
                     </div>
                     <br />
                     <h6 class="roboto-condensed" style="font-weight: 900;">Ends
-                        @ViewBag.ViewModel.AntiqueItem.AuctionCloseDateTime.ToString("f",
+                        @ViewBag.ViewModel.AntiqueItemViewModel.AuctionCloseDateTime.ToString("f",
                         CultureInfo.CreateSpecificCulture("en-US"))</h6>
                     </div> 
                     <hr />
                     @if (bidCount == 0)
                     {
                         <div class="center card-body" style="text-align: center;">
-                            <h1>@ViewBag.ViewModel.AntiqueItem.Price.ToString("C0", ci)</h1>
+                            <h1>@ViewBag.ViewModel.AntiqueItemViewModel.Price.ToString("C0", ci)</h1>
                             <h5 class="poppins">Starting Bid</h5>
                             <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
                             data-toggle="modal" data-target="#BidHistory">View All Bids
-                                (@ViewBag.ViewModel.Bids.Count)</a>
+                                (@ViewBag.ViewModel.BidViewModels.Count)</a>
                         </div>
                     }
                     else
@@ -78,7 +78,7 @@
                             <h5 class="poppins" style="text-align:center;">Current Highest Bid</h5>
                             <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
                             data-toggle="modal" data-target="#BidHistory">View All Bids
-                                (@ViewBag.ViewModel.Bids.Count)</a>
+                                (@ViewBag.ViewModel.BidViewModels.Count)</a>
                         </div>
                     }
                     <div class="roboto-condensed text-danger @hideDoNotBidAlert card-body">
@@ -97,7 +97,7 @@
                         <fieldset class="@hideBidding card-body">
                             <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
                             <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
-                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItem.Id">
+                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItemViewModel.Id">
 
                             <div class="input-group btn-group input-group-lg" role="group">
                                 <div class="input-group-prepend">
@@ -148,7 +148,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var bid in ViewBag.ViewModel.Bids)
+                            @foreach (var bid in ViewBag.ViewModel.BidViewModels)
                             {
                                 <tr style="text-align:center">
                                     <th scope="row">@bid.CreatedAt.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))
@@ -174,7 +174,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <img src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItem.ImageUrl" style="width: 100%;">
+                <img src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItemViewModel.ImageUrl" style="width: 100%;">
             </div>
         </div>
     </div>

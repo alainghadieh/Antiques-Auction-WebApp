@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Antiques_Auction_WebApp.Services;
 using Antiques_Auction_WebApp.Models;
 using AutoMapper;
+using System.Collections.Generic;
 
 namespace Antiques_Auction_WebApp.Controllers
 {
@@ -29,7 +30,7 @@ namespace Antiques_Auction_WebApp.Controllers
         public IActionResult Index(bool isSuccess = false)  
         {  
             ViewBag.IsSuccess = isSuccess;
-            return View(_antqSvc.GetItemsForSale());  
+            return View(_mapper.Map<List<AntiqueItemViewModel>>(_antqSvc.GetItemsForSale()));  
         }  
 
         [HttpGet]

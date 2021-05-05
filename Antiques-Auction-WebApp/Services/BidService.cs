@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Antiques_Auction_WebApp.Data;
-using Antiques_Auction_WebApp.Models.Entities;
+using Antiques_Auction_WebApp.Models;
 using MongoDB.Driver;
 
 namespace Antiques_Auction_WebApp.Services
@@ -37,5 +37,10 @@ namespace Antiques_Auction_WebApp.Services
 
         public void Update(Bid bid) =>
             _bids.ReplaceOne(b => b.Id == bid.Id, bid);
+
+        public void DeleteByItemId(string itemId)
+        {
+            _bids.DeleteMany(item => item.AntiqueItemId == itemId);
+        }
     }
 }

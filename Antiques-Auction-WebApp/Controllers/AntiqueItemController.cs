@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Antiques_Auction_WebApp.Models;
-using Antiques_Auction_WebApp.Models.Entities;
 using Antiques_Auction_WebApp.Services;
 using Antiques_Auction_WebApp.ViewModels;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -17,38 +18,40 @@ namespace Antiques_Auction_WebApp.Controllers
         private readonly AntiqueItemService _antqSvc;
         private readonly BidService _bidSvc;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMapper _mapper;
 
-        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, IWebHostEnvironment webHostEnvironment)
+        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _antqSvc = antiqueItemService;
             _bidSvc = bidService;
             _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult Create(bool isSuccess = false, int itemId = 0)
+        public IActionResult Create(bool isSuccess = false, string itemId = "")
         {
-            var model = new AntiqueItemModel();
+            var viewModel = new AntiqueItemViewModel();
             ViewBag.IsSuccess = isSuccess;
             ViewBag.ItemId = itemId;
-            return View(model);
+            return View(viewModel);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AntiqueItemModel antiqueItemModel)
+        public async Task<IActionResult> Create(AntiqueItemViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                if (antiqueItemModel.Image != null)
+                AntiqueItem item = _mapper.Map<AntiqueItem>(viewModel);
+                if (viewModel.Image != null)
                 {
                     string folder = "AntiqueItemImages/";
-                    antiqueItemModel.ImageUrl = await UploadImage(folder, antiqueItemModel.Image);
+                    item.ImageUrl = await UploadImage(folder, viewModel.Image);
                 }
-
-                string id = _antqSvc.Create(antiqueItemModel);
+                string id = _antqSvc.Create(item);
                 if (!string.IsNullOrEmpty(id))
                 {
                     return RedirectToAction(nameof(Create), "AntiqueItem", new { isSuccess = true, itemId = id });
@@ -59,46 +62,37 @@ namespace Antiques_Auction_WebApp.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-
         public ActionResult Update(string id)
         {
             AntiqueItem antiqueItem = _antqSvc.Find(id);
-            AntiqueItemModel antiqueItemModel = new AntiqueItemModel()
-            {
-                Id = antiqueItem.Id,
-                Name = antiqueItem.Name,
-                Description = antiqueItem.Description,
-                Price = antiqueItem.Price,
-                ImageUrl = antiqueItem.ImageUrl,
-                AuctionOpenDateTime = antiqueItem.AuctionOpenDateTime,
-                AuctionCloseDateTime = antiqueItem.AuctionCloseDateTime,
-                CreatedAt = antiqueItem.CreatedAt
-            };
-            return View(antiqueItemModel);
+            AntiqueItemViewModel antiqueItemViewModel = _mapper.Map<AntiqueItemViewModel>(antiqueItem);
+            return View(antiqueItemViewModel);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(AntiqueItemModel antiqueItemModel)
+        public async Task<IActionResult> Update(AntiqueItemViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                if (antiqueItemModel.Image != null)
+                AntiqueItem item = _mapper.Map<AntiqueItem>(viewModel);
+                if (viewModel.Image != null)
                 {
                     string folder = "AntiqueItemImages/";
-                    antiqueItemModel.ImageUrl = await UploadImage(folder, antiqueItemModel.Image);
+                    item.ImageUrl = await UploadImage(folder, viewModel.Image);
                 }
-                _antqSvc.Update(antiqueItemModel);
+                _antqSvc.Update(item);
             }
             return RedirectToAction("Index", "Dashboard");
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete]
+        [HttpGet]
         public IActionResult Delete(string id)
         {
             _antqSvc.Delete(id);
+            _bidSvc.DeleteByItemId(id);
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -109,6 +103,7 @@ namespace Antiques_Auction_WebApp.Controllers
         {
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
+            AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
             int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(id);
             ViewBag.HighestBidOnItem = highestBidOnItem ?? null;
             if (highestBidOnItem != null)
@@ -126,22 +121,23 @@ namespace Antiques_Auction_WebApp.Controllers
                 if (ViewBag.MinAmountAllowed > ViewBag.MaxAmountAllowed)
                     ViewBag.NotAllowedToBid = true;
             }
-            ViewBag.ViewModel = new AntiqueItemViewModel()
+            ViewBag.ViewModel = new ItemDetailsViewModel()
             {
-                AntiqueItem = item,
-                Bids = _bidSvc.GetBidsForItem(item.Id)
+                AntiqueItemViewModel = viewModel,
+                BidViewModels = _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(item.Id))
             };
             ViewData["RemainingTime"] = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
-            return View(new Bid());
+            return View(new BidViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Regular")]
-        public IActionResult CreateBid(Bid bid)
+        public IActionResult CreateBid(BidViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                Bid bid = _mapper.Map<Bid>(viewModel);
                 bid.CreatedAt = DateTime.UtcNow;
                 if (!string.IsNullOrEmpty(bid.Id))
                 {

@@ -9,6 +9,8 @@ namespace Antiques_Auction_WebApp.Mappings
         public MappingProfile()
         {
             CreateMap<AutoBidConfig, AutoBidConfigViewModel>().ReverseMap();
+            CreateMap<Bid, BidViewModel>().ReverseMap();
+            CreateMap<AntiqueItem, AntiqueItemViewModel>().ReverseMap();
         }
     }
 }

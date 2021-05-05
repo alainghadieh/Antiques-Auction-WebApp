@@ -2,7 +2,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Antiques_Auction_WebApp.Models.Entities
+namespace Antiques_Auction_WebApp.Models
 {
     public class AntiqueItem
     {
@@ -15,7 +15,5 @@ namespace Antiques_Auction_WebApp.Models.Entities
         public int Price { get; set; }
         public DateTime AuctionOpenDateTime { get; set; }
         public DateTime AuctionCloseDateTime { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
     }
 }
