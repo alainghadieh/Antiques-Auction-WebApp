@@ -17,13 +17,16 @@ namespace Antiques_Auction_WebApp.Controllers
     {
         private readonly AntiqueItemService _antqSvc;
         private readonly BidService _bidSvc;
+        private readonly AutoBidConfigService _configSvc;
+
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
 
-        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, AutoBidConfigService autoBidConfigService, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _antqSvc = antiqueItemService;
             _bidSvc = bidService;
+            _configSvc = autoBidConfigService;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
         }
@@ -101,15 +104,14 @@ namespace Antiques_Auction_WebApp.Controllers
         [Route("AntiqueItems/Item/{id}", Name = "antiqueItemRoute")]
         public IActionResult Details(string id, bool isSuccess = false)
         {
+            AutoBidConfig config = _configSvc.Find(User.Identity.Name);
+            ViewBag.DisallowAutoBid = (config != null)?  false : true;
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
             int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(id);
             ViewBag.HighestBidOnItem = highestBidOnItem ?? null;
-            if (highestBidOnItem != null)
-                ViewBag.MinAmountAllowed = highestBidOnItem + 1;
-            else
-                ViewBag.MinAmountAllowed = item.Price + 1;
+            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ?  highestBidOnItem + 1 : item.Price + 1;
             ViewBag.MaxAmountAllowed = null;
             ViewBag.NotAllowedToBid = false;
 
@@ -117,7 +119,7 @@ namespace Antiques_Auction_WebApp.Controllers
             ViewBag.OldBidId = oldBid?.Id ?? null;
             if (oldBid != null)
             {
-                ViewBag.MaxAmountAllowed = _bidSvc.GetBiggestBid() - 1;
+                ViewBag.MaxAmountAllowed = _bidSvc.GetHiggestBid() - 1;
                 if (ViewBag.MinAmountAllowed > ViewBag.MaxAmountAllowed)
                     ViewBag.NotAllowedToBid = true;
             }
@@ -147,9 +149,30 @@ namespace Antiques_Auction_WebApp.Controllers
                 {
                     _bidSvc.Create(bid);
                 }
+                AutoBid(bid.AntiqueItemId);
                 return RedirectToAction("Index", "Home", new { isSuccess = true });
             }
             return RedirectToAction("Index", "Home", new { isSuccess = false });
+        }
+
+        private void AutoBid(string itemId)
+        {
+            List<Bid> bids = _bidSvc.GetAutoBidsOnItem(itemId);
+            foreach (var bid in bids)
+            {
+                if (bid.Bidder != User.Identity.Name)
+                {
+                    int highestBid = (int)_bidSvc.GetHighestBidOnItem(itemId);
+                    var reserved = _bidSvc.GetReservedAmountByAutoBid(bid.Bidder);
+                    var bidderConfig = _configSvc.Find(bid.Bidder);
+                    if (highestBid + 1 <= (bidderConfig.MaxBidAmount - reserved))
+                    {
+                        bid.Amount = highestBid + 1;
+                        bid.CreatedAt = DateTime.UtcNow;
+                        _bidSvc.Update(bid);
+                    }
+                }
+            }
         }
 
         private async Task<string> UploadImage(string folderPath, IFormFile file)

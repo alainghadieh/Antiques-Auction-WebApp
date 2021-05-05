@@ -27,13 +27,28 @@ namespace Antiques_Auction_WebApp.Services
 
         public Bid GetBiddersBidOnItem(string itemId, string userName) =>
             _bids.Find(b => b.AntiqueItemId == itemId && b.Bidder == userName).SingleOrDefault();
+
         public int? GetHighestBidOnItem(string itemId) =>
             _bids.Find(b => b.AntiqueItemId == itemId).SortByDescending(b => b.Amount).FirstOrDefault()?.Amount;
 
-        public int GetBiggestBid() =>
+        public int GetHiggestBid() =>
             _bids.Aggregate()
                     .SortByDescending(b => b.Amount)
                     .Limit(1).ToList()[0].Amount;
+
+        public List<Bid> GetAutoBidsOnItem(string itemId) =>
+            _bids.Find(b => b.AntiqueItemId == itemId && b.AutoBiddingEnabled == true).ToList();
+
+        public int GetReservedAmountByAutoBid(string bidder)
+        {
+            var bids = _bids.Find(b => b.Bidder == bidder && b.AutoBiddingEnabled == true).ToList();
+            int sum = 0;
+            foreach (var bid in bids)
+            {
+                sum += bid.Amount;
+            }
+            return sum;
+        }
 
         public void Update(Bid bid) =>
             _bids.ReplaceOne(b => b.Id == bid.Id, bid);
