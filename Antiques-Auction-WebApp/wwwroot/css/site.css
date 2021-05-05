@@ -80,7 +80,6 @@ body {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
 }
 
 .modal-content {
@@ -139,6 +138,10 @@ body {
 .dataTables_filter,
 .paginate_button {
   font-family: 'Roboto Condensed', sans-serif;
+}
+
+.img-input :hover {
+  cursor: pointer;
 }
 
 /* fonts 
