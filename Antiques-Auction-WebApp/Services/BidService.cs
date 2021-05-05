@@ -40,7 +40,7 @@ namespace Antiques_Auction_WebApp.Services
 
         public void DeleteByItemId(string itemId)
         {
-            _bids.DeleteMany(item => item.AntiqueItemId == itemId);
+            _bids.DeleteMany(b => b.AntiqueItemId == itemId);
         }
     }
 }
