@@ -2,28 +2,27 @@
 @model AntiqueItemModel
 @{
     ViewData["Title"] = "Update Antique Item";
-}
-@{
-    Layout = "_Layout";
     CultureInfo ci = new CultureInfo("en-us");
 }
 
-<div class="container">
-    @if (ViewBag.IsSuccess == true)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Congratulations</strong> You have edited an existing item successfully. <br />
-            Click <a asp-route="antiqueItemRoute" asp-route-id="@ViewBag.ItemId">here</a> to view the details
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-    <div class="center">
-        <div class="card">
+<div class="center">
+    <div class="container col-md-5">
+        @if (ViewBag.IsSuccess == true)
+        {
+            <div class="alert alert-success alert-dismissible fade show poppins" role="alert">
+                Your changes were saved successfully. <br />
+                Click <a asp-route="antiqueItemRoute" asp-route-id="@ViewBag.ItemId">here</a> to view the details
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="history.back(-1)"><i
+                class="fas fa-arrow-left"></i> go back</button>
+        <div class="card center roboto-condensed">
             <form method="POST" enctype="multipart/form-data" asp-action="Update" asp-controller="AntiqueItem">
                 <div class="card-body">
-                    <h3 class="display-5">Update Item</h3>
+                    <h3 class="display-5">Edit Item</h3>
                     <hr />
                     <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="form-group mb-3">
@@ -36,7 +35,7 @@
                         <textarea asp-for="Description" class="form-control"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                        <label asp-for="Price" class="control-label">Price</label>
+                    <label asp-for="Price" class="control-label">Price</label>
                     <div class="form-group input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
@@ -46,10 +45,10 @@
                             <span class="input-group-text">.00</span>
                         </div>
                     </div>
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 img-input">
                         <label asp-for="Image" class="control-label"></label>
                         <div class="custom-file">
-                            <input asp-for="Image" class="custom-file-input" id="customFile"/>
+                            <input asp-for="Image" class="custom-file-input" id="customFile" />
                             <label class="custom-file-label" for="customFile">Choose Image</label>
                         </div>
                         <span asp-validation-for="Image" class="text-danger"></span>
@@ -61,13 +60,13 @@
                     <div class="form-group mb-3">
                         <label asp-for="AuctionCloseDateTime" class="control-label"></label>
                         <input class="form-control" asp-for="AuctionCloseDateTime">
-                    <div class="form-group mt-4">
-                        <input type="submit" class="btn btn-primary center" value="Save Item">
+                        <div class="form-group mt-4">
+                            <input type="submit" class="btn btn-success center poppins" value="Save Item">
+                        </div>
                     </div>
-                </div>
             </form>
         </div>
     </div>
-
+</div>
 
 <script src="../lib/jquery/dist/jquery.min.js"></script>
