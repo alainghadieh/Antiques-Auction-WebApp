@@ -49,6 +49,10 @@ namespace Antiques_Auction_WebApp.Controllers
                 HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
                 return RedirectToAction("Index", "Home");
             }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid Credentials Supplied");
+            }
             return View();
         }
 
