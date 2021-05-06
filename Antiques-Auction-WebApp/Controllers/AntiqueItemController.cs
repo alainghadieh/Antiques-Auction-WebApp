@@ -119,7 +119,7 @@ namespace Antiques_Auction_WebApp.Controllers
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
             int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(id);
             ViewBag.HighestBidOnItem = highestBidOnItem ?? null;
-            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ? highestBidOnItem + 1 : item.Price + 1;
+            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ? highestBidOnItem + 1 : item.Price;
             ViewBag.MaxAmountAllowed = null;
             ViewBag.NotAllowedToBid = false;
             Bid oldBid = _bidSvc.GetBiddersBidOnItem(item.Id, User.Identity.Name);
