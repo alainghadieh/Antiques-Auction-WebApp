@@ -12,7 +12,6 @@ using Newtonsoft.Json;
 
 namespace Antiques_Auction_WebApp.Controllers
 {
-    [Authorize(Roles = "Regular")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -21,7 +20,7 @@ namespace Antiques_Auction_WebApp.Controllers
         private readonly NotificationService _notifSvc;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        
+
         private ISession Session => _httpContextAccessor.HttpContext.Session;
         private readonly string _NotificationsSessionKey = "Notifications";
         private readonly string _notificationsCountSessionKey = "NotificationsCount";
@@ -36,9 +35,14 @@ namespace Antiques_Auction_WebApp.Controllers
             _logger = logger;
         }
 
+        [Authorize(Roles = "Admin,Regular")]
         [HttpGet]
-        public IActionResult Index(bool isSuccess = false)  
-        {  
+        public IActionResult Index(bool isSuccess = false)
+        {
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction(nameof(Index), "Dashboard");
+            }
             ViewBag.IsSuccess = isSuccess;
             List<NotificationViewModel> notifications = new List<NotificationViewModel>();
 
@@ -46,9 +50,10 @@ namespace Antiques_Auction_WebApp.Controllers
 
             Session.SetString(_NotificationsSessionKey, JsonConvert.SerializeObject(notifications));
             Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
-            return View(_mapper.Map<List<AntiqueItemViewModel>>(_antqSvc.GetItemsForSale()));  
-        }  
+            return View(_mapper.Map<List<AntiqueItemViewModel>>(_antqSvc.GetItemsForSale()));
+        }
 
+        [Authorize(Roles = "Regular")]
         [HttpGet]
         public IActionResult AutoBidConfiguration(bool isSuccess = false)
         {
@@ -69,11 +74,12 @@ namespace Antiques_Auction_WebApp.Controllers
             notifications = _mapper.Map<List<NotificationViewModel>>(_notifSvc.Read(User.Identity.Name));
             Session.SetString(_NotificationsSessionKey, JsonConvert.SerializeObject(notifications));
             Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
-            
+
             ViewBag.IsSuccess = isSuccess;
             return View(configViewModel);
         }
 
+        [Authorize(Roles = "Regular")]
         [HttpPost]
         public IActionResult Create(AutoBidConfigViewModel configViewModel)
         {
@@ -85,10 +91,12 @@ namespace Antiques_Auction_WebApp.Controllers
             }
             return RedirectToAction(nameof(AutoBidConfiguration), new { isSuccess = false });
         }
+
+        [Authorize(Roles = "Regular")]
         [HttpPost]
         public IActionResult Update(AutoBidConfigViewModel configViewModel)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var mappedConfig = _mapper.Map<AutoBidConfig>(configViewModel);
                 _configSvc.Update(mappedConfig);
