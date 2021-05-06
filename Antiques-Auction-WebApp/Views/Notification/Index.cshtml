@@ -1,0 +1,33 @@
+@model IList<Antiques_Auction_WebApp.ViewModels.NotificationViewModel>
+
+<div class="content">
+    <div class="center col-md-7">
+        <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="history.back(-1)"><i
+        class="fas fa-arrow-left"></i> go back</button>
+        <div class="card">
+            <div class="card-body">
+                <h4 class="poppins">Alerts</h4>
+                <hr />
+                <div class="table-responsive pt-2">
+                    <table class="table table-striped table-hover" style="text-align:center;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var alert in Model)
+                            {
+                                <tr style="text-align:center">
+                                    <th scope="row">@alert.CreatedAt</th>
+                                    <th scope="row">@alert.Message</th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

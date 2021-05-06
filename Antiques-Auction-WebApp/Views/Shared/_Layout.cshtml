@@ -1,5 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+    @using Microsoft.AspNetCore.Http
+    @{
+        string _notificationsCountSessionKey = "NotificationsCount";
+    }
 
     <head>
         <meta charset="utf-8" />
@@ -10,9 +14,12 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" />
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
+            rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+            integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+            crossorigin="anonymous" />
     </head>
 
     <body>
@@ -28,36 +35,44 @@
                     <div class="navbar-collapse collapse justify-content-between">
                         <ul class="navbar-nav mr-auto">
                             <li class="nav-item">
-                                @if(User.IsInRole("Admin"))
-                                {
-                                    <a class="nav-link text-white" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-                                } 
-                                else if (User.IsInRole("Regular"))
-                                {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                    <a class="nav-link text-white" asp-controller="Dashboard"
+                                    asp-action="Index">Dashboard</a>
+                            }
+                            else if (User.IsInRole("Regular"))
+                            {
                                     <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Home</a>
-                                }
+                            }
                             </li>
                         </ul>
+                        @if (User.IsInRole("Regular"))
+                        {
+                            <a class="nav-link text-white mx-1 my-1" href="/Notification/Index">
+                                <i class="far fa-bell"></i>
+                                Alerts (@Context.Session.GetInt32(_notificationsCountSessionKey).ToString())
+                            </a>
+                        }
                         <partial name="_LoginPartial" />
                     </div>
             </nav>
         </header>
         <div class="container">
             <main role="main" class="pb-3">
-                @RenderBody()
+            @RenderBody()
             </main>
         </div>
 
         <footer class="border-top footer text-muted poppins">
             <div class="container">
-                &copy; 2021 - Antiques Online Auction 
+                &copy; 2021 - Antiques Online Auction
             </div>
         </footer>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-        @RenderSection("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
     </body>
 
 </html>

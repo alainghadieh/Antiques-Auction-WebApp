@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Antiques_Auction_WebApp.Controllers
 {
@@ -18,15 +19,22 @@ namespace Antiques_Auction_WebApp.Controllers
         private readonly AntiqueItemService _antqSvc;
         private readonly BidService _bidSvc;
         private readonly AutoBidConfigService _configSvc;
-
+        private readonly NotificationService _notifSvc;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, AutoBidConfigService autoBidConfigService, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        private readonly IMapper _mapper;
+        private ISession Session => _httpContextAccessor.HttpContext.Session;
+        private readonly string _NotificationsSessionKey = "Notifications";
+        private readonly string _notificationsCountSessionKey = "NotificationsCount";
+
+        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, AutoBidConfigService autoBidConfigService, NotificationService notificationService, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _antqSvc = antiqueItemService;
             _bidSvc = bidService;
             _configSvc = autoBidConfigService;
+            _notifSvc = notificationService;
+            _httpContextAccessor = httpContextAccessor;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
         }
@@ -105,16 +113,15 @@ namespace Antiques_Auction_WebApp.Controllers
         public IActionResult Details(string id, bool isSuccess = false)
         {
             AutoBidConfig config = _configSvc.Find(User.Identity.Name);
-            ViewBag.DisallowAutoBid = (config != null)?  false : true;
+            ViewBag.DisallowAutoBid = (config != null) ? false : true;
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
             int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(id);
             ViewBag.HighestBidOnItem = highestBidOnItem ?? null;
-            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ?  highestBidOnItem + 1 : item.Price + 1;
+            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ? highestBidOnItem + 1 : item.Price + 1;
             ViewBag.MaxAmountAllowed = null;
             ViewBag.NotAllowedToBid = false;
-
             Bid oldBid = _bidSvc.GetBiddersBidOnItem(item.Id, User.Identity.Name);
             ViewBag.OldBidId = oldBid?.Id ?? null;
             if (oldBid != null)
@@ -129,6 +136,10 @@ namespace Antiques_Auction_WebApp.Controllers
                 BidViewModels = _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(item.Id))
             };
             ViewData["RemainingTime"] = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
+            List<NotificationViewModel> notifications = new List<NotificationViewModel>();
+            notifications = _mapper.Map<List<NotificationViewModel>>(_notifSvc.Read(User.Identity.Name));
+            Session.SetString(_NotificationsSessionKey, JsonConvert.SerializeObject(notifications));
+            Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
             return View(new BidViewModel());
         }
 
@@ -142,13 +153,9 @@ namespace Antiques_Auction_WebApp.Controllers
                 Bid bid = _mapper.Map<Bid>(viewModel);
                 bid.CreatedAt = DateTime.UtcNow;
                 if (!string.IsNullOrEmpty(bid.Id))
-                {
                     _bidSvc.Update(bid);
-                }
                 else
-                {
                     _bidSvc.Create(bid);
-                }
                 AutoBid(bid.AntiqueItemId);
                 return RedirectToAction("Index", "Home", new { isSuccess = true });
             }
@@ -165,16 +172,34 @@ namespace Antiques_Auction_WebApp.Controllers
                     int highestBid = (int)_bidSvc.GetHighestBidOnItem(itemId);
                     var reserved = _bidSvc.GetReservedAmountByAutoBid(bid.Bidder);
                     var bidderConfig = _configSvc.Find(bid.Bidder);
+                    CheckIfPassedAlertThreshold(bidderConfig, reserved);
                     if (highestBid + 1 <= (bidderConfig.MaxBidAmount - reserved))
                     {
                         bid.Amount = highestBid + 1;
                         bid.CreatedAt = DateTime.UtcNow;
                         _bidSvc.Update(bid);
                     }
+                    else
+                        SendNotification("Insufficient Funds!", bidderConfig.UserName);
                 }
             }
         }
-
+        private void CheckIfPassedAlertThreshold(AutoBidConfig config, int reservedAmount)
+        {
+            bool crossedThreshold = ((reservedAmount / config.MaxBidAmount) * 100) >= config.AlertThreshold;
+            if (crossedThreshold)
+                SendNotification($"You have surpassed {config.AlertThreshold}% of maximum bid amount reserved for auto-bidding!", config.UserName);
+        }
+        private void SendNotification(string message, string toUser)
+        {
+            _notifSvc.Create(new Notification()
+            {
+                Message = message,
+                UserName = toUser,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
         private async Task<string> UploadImage(string folderPath, IFormFile file)
         {
             string imageName = Guid.NewGuid().ToString() + "_" + file.FileName;

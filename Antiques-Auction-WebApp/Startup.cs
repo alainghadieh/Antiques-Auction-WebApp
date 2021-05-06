@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Antiques_Auction_WebApp
 {
@@ -28,13 +29,17 @@ namespace Antiques_Auction_WebApp
             services.AddSingleton<AntiqueItemService>();
             services.AddSingleton<BidService>();
             services.AddSingleton<AutoBidConfigService>();
+            services.AddSingleton<NotificationService>();
             
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddMvc()
+                .AddSessionStateTempDataProvider();
+            services.AddSession();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
@@ -60,7 +65,7 @@ namespace Antiques_Auction_WebApp
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
