@@ -95,7 +95,7 @@ namespace Antiques_Auction_WebApp.Controllers
                 }
                 _antqSvc.Update(item);
             }
-            return RedirectToAction("Index", "Dashboard");
+            return View();
         }
 
         [Authorize(Roles = "Admin")]
