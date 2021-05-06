@@ -21,27 +21,29 @@
                 <div class="card-body">
                     <h3 class="display-5">Configure Auto-Bidding</h3>
                     <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id">
                     <input type="hidden" asp-for="UserName">
-                    <div asp-validation-summary="All" class="text-danger"></div>
                     <label asp-for="MaxBidAmount" class="control-label"></label>
-                    <div class="form-group input-group mb-3">
+                    <div class="form-group input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">$</span>
                         </div>
-                        <input asp-for="MaxBidAmount" class="form-control">
+                        <input asp-for="MaxBidAmount" class="form-control" min="0">
                         <div class="input-group-append">
                             <span class="input-group-text">.00</span>
                         </div>
                     </div>
-                        <label asp-for="AlertThreshold" class="control-label"></label>
-                    <div class="form-group input-group mb-3">
-                        <input asp-for="AlertThreshold" class="form-control">
-                        <span asp-validation-for="AlertThreshold" class="text-danger"></span>
+                        <span asp-validation-for="MaxBidAmount" class="text-danger"></span>
+                        <label asp-for="AlertThreshold" class="control-label mb-0"></label>
+                        <small class="">(used to alert you once it is crossed)</small>
+                    <div class="form-group input-group mt-2">
+                        <input asp-for="AlertThreshold" class="form-control" min="0" max="100">
                         <div class="input-group-append">
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
+                        <span asp-validation-for="AlertThreshold" class="text-danger"></span>
                     <div class="form-group mt-4">
                         <input type="submit" class="btn btn-success center poppins" value="Save Changes">
                     </div>
@@ -52,3 +54,7 @@
 </div>
 
 <script src="../lib/jquery/dist/jquery.min.js"></script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
