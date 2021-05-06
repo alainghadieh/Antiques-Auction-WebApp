@@ -29,11 +29,11 @@ namespace Antiques_Auction_WebApp.ViewModels
             List<ValidationResult> errors = new List<ValidationResult>();
             if (AuctionCloseDateTime < AuctionOpenDateTime)
             {
-                errors.Add(new ValidationResult($"{nameof(AuctionCloseDateTime)} field needs to be greater than {nameof(AuctionOpenDateTime)} field", new List<string> { nameof(AuctionCloseDateTime) }));
+                errors.Add(new ValidationResult($"Auction Close date has to be greater than auction open date.",  new List<string> { nameof(AuctionCloseDateTime) }));
             }
             if (AuctionOpenDateTime < DateTime.Now)
             {
-                errors.Add(new ValidationResult($"{nameof(AuctionOpenDateTime)} field can not be in the past", new List<string> { nameof(AuctionOpenDateTime) }));
+                errors.Add(new ValidationResult($"Auction open date can not be in the past.", new List<string> { nameof(AuctionOpenDateTime) }));
             }
             return errors;
         }
