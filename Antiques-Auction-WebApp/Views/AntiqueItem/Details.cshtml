@@ -82,61 +82,65 @@
                             (@ViewBag.ViewModel.BidViewModels.Count)</a>
                     </div>
                 }
-                <div class="roboto-condensed text-danger @hideDoNotBidAlert card-body">
-                    <p style="margin-bottom:0px"><strong>You are not allowed to bid at this
-                            time!</strong></p>
-                    <ul>
-                        <li>
-                            <small>You have already placed a bid on this item</small>
-                        </li>
-                        <li>
-                            <small>The higgest bid across the system is placed on this item</small>
-                        </li>
-                    </ul>
-                </div>
-                <form method="post" asp-action="CreateBid" asp-controller="AntiqueItem">
-                    <fieldset class="@hideBidding card-body">
-                        <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
-                        <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
-                        <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItemViewModel.Id">
+                @if (User.IsInRole("Regular"))
+                {
 
-                        <div class="input-group btn-group input-group-lg" role="group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            <input class="form-control" asp-for="Amount" min="@ViewBag.MinAmountAllowed"
+                    <div class="roboto-condensed text-danger @hideDoNotBidAlert card-body">
+                        <p style="margin-bottom:0px"><strong>You are not allowed to bid at this
+                                time!</strong></p>
+                        <ul>
+                            <li>
+                                <small>You have already placed a bid on this item</small>
+                            </li>
+                            <li>
+                                <small>The higgest bid across the system is placed on this item</small>
+                            </li>
+                        </ul>
+                    </div>
+                    <form method="post" asp-action="CreateBid" asp-controller="AntiqueItem">
+                        <fieldset class="@hideBidding card-body">
+                            <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
+                            <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
+                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItemViewModel.Id">
+
+                            <div class="input-group btn-group input-group-lg" role="group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                <input class="form-control" asp-for="Amount" min="@ViewBag.MinAmountAllowed"
                                 max="@ViewBag.MaxAmountAllowed" value="@ViewBag.MinAmountAllowed">
-                            <div class="input-group-append">
-                                <span class="input-group-text">.00</span>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">.00</span>
+                                </div>
                             </div>
-                        </div>
-                        <br />
-                        <div class="form-group form-check d-flex justify-content-between">
+                            <br />
+                            <div class="form-group form-check d-flex justify-content-between">
+                                @if (ViewBag.DisallowAutoBid)
+                                {
+                                    <input class="form-check-input" asp-for="AutoBiddingEnabled" disabled />
+                                }
+                                else
+                                {
+                                    <input class="form-check-input" asp-for="AutoBiddingEnabled" />
+                                }
+                                <label class="form-check-label roboto-condensed" asp-for="AutoBiddingEnabled"></label>
+                                <a href="/Home/AutoBidConfiguration" class="roboto-condensed"
+                                style="white-space:normal;">Configure Auto-Bidding</a>
+                            </div>
                             @if (ViewBag.DisallowAutoBid)
                             {
-                                <input class="form-check-input" asp-for="AutoBiddingEnabled" disabled />
+                                <div class="mb-3">
+                                    <small class="roboto-condensed"><i class="fas fa-exclamation-circle"></i> In order to allow
+                                        auto-bidding functionality on this item, please click on Auto-Bidding
+                                        Configuration.</small>
+                                </div>
                             }
-                            else
-                            {
-                                <input class="form-check-input" asp-for="AutoBiddingEnabled" />
-                            }
-                            <label class="form-check-label roboto-condensed" asp-for="AutoBiddingEnabled"></label>
-                            <a href="/Home/AutoBidConfiguration" class="roboto-condensed"
-                                style="white-space:normal;">Configure Auto-Bidding</a>
-                        </div>
-                        @if (ViewBag.DisallowAutoBid)
-                        {
-                            <div class="mb-3">
-                                <small class="roboto-condensed"><i class="fas fa-exclamation-circle"></i> In order to allow
-                                    auto-bidding functionality on this item, please click on Auto-Bidding
-                                    Configuration.</small>
-                            </div>
-                        }
-                        <button type="submit" class="btn btn-danger btn-lg btn-block poppins"
+                            <button type="submit" class="btn btn-danger btn-lg btn-block poppins"
                             style="font-size: 22px;">bid
-                            now</button>
-                    </fieldset>
-                </form>
+                                now</button>
+                        </fieldset>
+                    </form>
+                }
             </div>
         </div>
     </div>

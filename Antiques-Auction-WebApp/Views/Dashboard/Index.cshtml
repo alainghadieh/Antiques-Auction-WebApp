@@ -11,12 +11,12 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="row d-flex justify-content-between">
+                        <div class="d-flex justify-content-between">
                             <div class="pl-3">
-                                <h4 class="card-title poppins" style="margin-bottom:0px;">All Antique Items</h4>
+                                <h4 class="card-title poppins" style="margin-bottom:0px;">All Items</h4>
                             </div>
                             <div class="pr-3">
-                                <a class="roboto-condensed" asp-controller="AntiqueItem" asp-action="Create"><i class="fas fa-plus"></i> Add Antique Item</a>
+                                <a class="roboto-condensed" asp-controller="AntiqueItem" asp-action="Create"><i class="fas fa-plus"></i> Add Item</a>
                             </div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                                             <tr scope="row" style="text-align:center;vertical-align:middle !important;">
                                                 <td><img src="~/AntiqueItemImages/@item.ImageUrl" asp-append-version="true"
                                                 class="img-fluid" style="width:100px"></td>
-                                                <td>@item.Name</td>
+                                                <td><a href="/AntiqueItems/Item/@item.Id">@item.Name</a></td>
                                                 <td>@item.Price.ToString("C", ci)</td>
                                                 <td>@item.Description</td>
                                                 <td>@item.AuctionOpenDateTime.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))</td>
