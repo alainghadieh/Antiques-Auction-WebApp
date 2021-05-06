@@ -13,6 +13,7 @@ namespace Antiques_Auction_WebApp.Models
         public string AntiqueItemId { get; set; }
         public int Amount { get; set; }
         public bool AutoBiddingEnabled { get; set; }
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime CreatedAt { get; set; }
     }
 }

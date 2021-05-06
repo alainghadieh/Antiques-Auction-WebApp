@@ -12,6 +12,7 @@ namespace Antiques_Auction_WebApp.Models
         public string Message { get; set; }
         public string UserName { get; set; }
         public bool IsRead { get; set; }
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime CreatedAt { get; set; }
     }
 }
