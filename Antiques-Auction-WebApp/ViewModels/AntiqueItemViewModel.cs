@@ -15,13 +15,13 @@ namespace Antiques_Auction_WebApp.ViewModels
         public string Description { get; set; }
         [Required(ErrorMessage = "Please enter the price")]
         public int Price { get; set; }
-        [Display(Name = "Choose the image for the antique item"), Required]
+        [Required]
         public IFormFile Image { get; set; }
         public string ImageUrl { get; set; }
-        [Display(Name = "Choose auction start time and date"), DataType(DataType.DateTime), Required]
+        [Display(Name = "Start Date and Time"), DataType(DataType.DateTime), Required]
         [BindProperty, DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
         public DateTime AuctionOpenDateTime { get; set; }
-        [Display(Name = "Choose auction end time and date"), DataType(DataType.DateTime), Required]
+        [Display(Name = "End Date and Time"), DataType(DataType.DateTime), Required]
         [BindProperty, DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
         public DateTime AuctionCloseDateTime { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

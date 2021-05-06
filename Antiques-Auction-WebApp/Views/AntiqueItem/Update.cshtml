@@ -48,12 +48,11 @@
                     </div>
                     <div class="form-group mb-3 img-input">
                         <label asp-for="Image" class="control-label"></label>
-                        <div class="custom-file">
-                            <input asp-for="Image" class="custom-file-input" id="customFile" />
-                            <label class="custom-file-label" for="customFile">Choose Image</label>
-                        </div>
+                        <input asp-for="Image" class="btn btn-secondary btn-block"/>
                         <span asp-validation-for="Image" class="text-danger"></span>
                     </div>
+                    <hr>
+                    <h3>Auction TimeFrame</h3>
                     <div class="form-group mb-3">
                         <label asp-for="AuctionOpenDateTime" class="control-label"></label>
                         <input class="form-control" asp-for="AuctionOpenDateTime">
