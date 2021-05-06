@@ -1,22 +1,27 @@
 @if (User.Identity.IsAuthenticated)
 {
-    <ul class="navbar-nav">
-        <div class="btn-group">
-            <li>
-                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</button>
-                <div class="dropdown-menu">
-                    @{if(User.IsInRole("Regular")){<a href="/Home/AutoBidConfiguration" class="dropdown-item" style="white-space:normal;">Configure Auto-Bidding</a>}}
-                    <div class="dropdown-divider"></div>
-                    <a id="SignOut" href="#" class="dropdown-item" style="cursor:pointer;">Sign out</a>
-                </div>
-            </li>
-        </div>
-    </ul>
+        <ul class="navbar-nav">
+            <div class="btn-group">
+                <li>
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</button>
+                    <div class="dropdown-menu">
+                    @{
+                        if (User.IsInRole("Regular"))
+                        {
+                            <a href="/Home/AutoBidConfiguration" class="dropdown-item" style="white-space:normal;">Configure Auto-Bidding</a>
+                        }
+                    }
+                        <div class="dropdown-divider"></div>
+                        <a id="SignOut" href="#" class="dropdown-item" style="cursor:pointer;">Sign out</a>
+                    </div>
+                </li>
+            </div>
+        </ul>
 }
-<form asp-controller="Account" asp-action="Logout" method="post" id="logout_form"></form>
+<form asp-controller="Account" asp-action="Logout" method="post" id="LogoutForm"></form>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
-    var anchor = document.getElementById('SignOut');
-    anchor.addEventListener("click", function() {
-        document.getElementById('logout_form').submit();
+    $("#SignOut").click(function(e) {
+        $("#LogoutForm").submit();
     });
 </script>

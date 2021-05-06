@@ -3,30 +3,92 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="container col-md-4 col-lg-4 roboto-condensed" style="margin-top:100px">
-    <div class="card">
-        <div class="card-body">
-            <form asp-action="login" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <input asp-for="UserName" class="form-control form-control-lg" placeholder="Username">
-                    <span asp-validation-for="UserName" class="text-danger"></span>
+<div class="container roboto-condensed">
+    <h2>@ViewData["Title"]</h2>
+    <div class="row">
+        <div class="col-md-4 ">
+            <section>
+                <form asp-action="login" method="post" id="LoginForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <input asp-for="UserName" class="form-control form-control-lg" placeholder="Username">
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input asp-for="Password" class="form-control form-control-lg" placeholder="Password">
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <hr />
+                    <div class="form-check row">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block"
+                            style="font-weight:700;border-radius:.5rem;background-color:#1877f2;border:none;line-height:48px;width:50%">Log
+                            In</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+        <hr />
+        <div class="col-md-8 mt-4">
+            <div class="text-danger">*This section is for development purposes only.</div>
+            <br />
+            <div class="row">
+                <div class="col-md-6">
+                    <div>admin1 username: admin1</div>
+                    <div>admin1 password: password</div>
+                    <button id="PasteTo" class="btn btn-primary"
+                        style="border-radius:.3rem;background-color:#1877f2;border:none;"><span
+                            class="fa fa-lock"></span>&nbsp; Use these credentials</button>
                 </div>
-                <div class="form-group">
-                    <input asp-for="Password" class="form-control form-control-lg" placeholder="Password">
-                    <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="col-md-6">
+                    <div>admin2 username: admin2</div>
+                    <div>admin2 password: password</div>
+                    <button id="PasteTo2" class="btn btn-primary"
+                        style="border-radius:.3rem;background-color:#1877f2;border:none;"><span
+                            class="fa fa-lock"></span>&nbsp; Use these credentials</button>
                 </div>
-                <hr />
-                <div class="form-check row">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block"
-                        style="font-weight:700;border-radius:.5rem;background-color:#1877f2;border:none;line-height:48px;width:50%">Log
-                        In</button>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-6">
+                    <div>user1 username: user1</div>
+                    <div>user1 password: password</div>
+                    <button id="PasteTo3" class="btn btn-primary"
+                        style="border-radius:.3rem;background-color:#1877f2;border:none;"><span
+                            class="fa fa-lock"></span>&nbsp; Use these credentials</button>
                 </div>
-            </form>
+                <div class="col-md-6">
+                    <div>user2 username: user1</div>
+                    <div>user2 password: password</div>
+                    <button id="PasteTo4" class="btn btn-primary"
+                        style="border-radius:.3rem;background-color:#1877f2;border:none;"><span
+                            class="fa fa-lock"></span>&nbsp; Use these credentials</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    }
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    function pasteCredentials(username) {
+        $('#UserName').val(username);
+        $('#Password').val("password");
+        $('#LoginForm').submit();
+    };
+    $('#PasteTo').click(function () {
+        pasteCredentials("admin1");
+    });
+    $('#PasteTo2').click(function () {
+        pasteCredentials("admin2");
+    });
+    $('#PasteTo3').click(function () {
+        pasteCredentials("user1");
+    });
+    $('#PasteTo4').click(function () {
+        pasteCredentials("user2");
+    });
+</script>
