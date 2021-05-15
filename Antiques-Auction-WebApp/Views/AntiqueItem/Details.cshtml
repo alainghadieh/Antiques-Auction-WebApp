@@ -3,12 +3,11 @@
 @{
     Layout = "_Layout";
     CultureInfo ci = new CultureInfo("en-us");
-    ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.AntiqueItemViewModel.Name;
-    int bidCount = ViewBag.ViewModel.BidViewModels.Count;
+    ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.Name;
+    int bidCount = ViewBag.BidCount;
     string toggleDisableAnchor = bidCount == 0 ? "disabled-link" : "";
     string hideBidding = ViewBag.NotAllowedToBid ? "d-none" : "";
     string hideDoNotBidAlert = ViewBag.NotAllowedToBid ? "" : "d-none";
-    int highestBidOnItem = ViewBag.highestBidOnItem ?? 0;
 }
 <div class="container">
     <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="history.back(-1)"><i
@@ -17,11 +16,11 @@
         <div class="col-sm-4 col-md-7 col-lg-7">
             <div class="card">
                 <img class="center" id="ItemImage" data-toggle="modal" data-target="#ImageModal"
-                    src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItemViewModel.ImageUrl" style="width:100%;">
+                    src="~/AntiqueItemImages/@ViewBag.ViewModel.ImageUrl" style="width:100%;">
                 <div class="card-body">
-                    <h3 class="card-text">@ViewBag.ViewModel.AntiqueItemViewModel.Name</h3>
+                    <h3 class="card-text">@ViewBag.ViewModel.Name</h3>
                     <h5 class="card-text">Description</h5>
-                    <p class="card-text">@ViewBag.ViewModel.AntiqueItemViewModel.Description</p>
+                    <p class="card-text">@ViewBag.ViewModel.Description</p>
                 </div>
             </div>
         </div>
@@ -58,28 +57,26 @@
                     </div>
                     <br />
                     <h6 class="roboto-condensed" style="font-weight: 900;">Ends
-                        @ViewBag.ViewModel.AntiqueItemViewModel.AuctionCloseDateTime.ToString("f",
+                        @ViewBag.ViewModel.AuctionCloseDateTime.ToString("f",
                         CultureInfo.CreateSpecificCulture("en-US"))</h6>
                 </div>
                 <hr />
                 @if (bidCount == 0)
                 {
                     <div class="center card-body" style="text-align: center;">
-                        <h1>@ViewBag.ViewModel.AntiqueItemViewModel.Price.ToString("C0", ci)</h1>
+                        <h1>@ViewBag.ViewModel.Price.ToString("C0", ci)</h1>
                         <h5 class="poppins">Starting Bid</h5>
                         <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
-                        data-toggle="modal" data-target="#BidHistory">View All Bids
-                            (@ViewBag.ViewModel.BidViewModels.Count)</a>
+                        data-toggle="modal" data-target="#BidHistory">View All Bids (0)</a>
                     </div>
                 }
                 else
                 {
                     <div class="center card-body" style="text-align: center !important;">
-                        <h1>@highestBidOnItem.ToString("C0", ci)</h1>
+                        <h1 id="HighestBidOnItem"></h1>
                         <h5 class="poppins" style="text-align:center;">Current Highest Bid</h5>
-                        <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
-                        data-toggle="modal" data-target="#BidHistory">View All Bids
-                            (@ViewBag.ViewModel.BidViewModels.Count)</a>
+                        <a class="roboto-condensed center" id="ClickToViewBids" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
+                        data-toggle="modal" data-target="#BidHistory"></a> 
                     </div>
                 }
                 @if (User.IsInRole("Regular"))
@@ -101,14 +98,14 @@
                         <fieldset class="@hideBidding card-body">
                             <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
                             <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
-                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.AntiqueItemViewModel.Id">
+                            <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.Id">
 
                             <div class="input-group btn-group input-group-lg" role="group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
                                 </div>
-                                <input class="form-control" asp-for="Amount" min="@ViewBag.MinAmountAllowed"
-                                max="@ViewBag.MaxAmountAllowed" value="@ViewBag.MinAmountAllowed">
+                                <input class="form-control" asp-for="Amount" 
+                                max="@ViewBag.MaxAmountAllowed">
                                 <div class="input-group-append">
                                     <span class="input-group-text">.00</span>
                                 </div>
@@ -136,7 +133,7 @@
                                 </div>
                             }
                             <button type="submit" class="btn btn-danger btn-lg btn-block poppins"
-                            style="font-size: 22px;">bid
+                            style="font-size: 22px;" id="BidNow">bid
                                 now</button>
                         </fieldset>
                     </form>
@@ -146,7 +143,6 @@
     </div>
 </div>
 </div>
-
 <!-- #region modals -->
 <div class="modal fade" id="BidHistory" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -160,7 +156,7 @@
                 <h4 class="poppins">Bid History</h4>
                 <hr />
                 <div class="table-responsive pt-2">
-                    <table class="table table-dark table-striped table-hover" style="text-align:center;">
+                    <table id="ModalTable" class="table table-dark table-striped table-hover" style="text-align:center;">
                         <thead>
                             <tr>
                                 <th scope="col">Date</th>
@@ -169,15 +165,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var bid in ViewBag.ViewModel.BidViewModels)
-                            {
-                                <tr style="text-align:center">
-                                    <th scope="row">@bid.CreatedAt.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))
-                                    </th>
-                                    <th scope="row">@bid.Bidder</th>
-                                    <th scope="row">@bid.Amount.ToString("C", ci)</th>
-                                </tr>
-                            }
                         </tbody>
                     </table>
                 </div>
@@ -195,7 +182,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <img src="~/AntiqueItemImages/@ViewBag.ViewModel.AntiqueItemViewModel.ImageUrl" style="width: 100%;">
+                <img src="~/AntiqueItemImages/@ViewBag.ViewModel.ImageUrl" style="width: 100%;">
             </div>
         </div>
     </div>
@@ -203,12 +190,65 @@
 <!-- #endregion -->
 
 <script src="../../lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+
 <script>
+    function getBidUpdates() {
+        $.ajax({
+            type: "GET",
+            url: "/AntiqueItem/GetBidUpdates",
+            data: { "itemId": $("#AntiqueItemId").val() },
+            success: function (response) {
+                console.log(response);
+                $('#ModalTable tbody').empty();
+                $('#Amount').attr({
+                    "min": response.minAmountAllowed,
+                    "value": response.minAmountAllowed
+                });
+                $('#HighestBidOnItem').empty();
+                $('#ClickToViewBids').empty();
+
+                $('#HighestBidOnItem').text('$ ' + response.highestBidOnItem);
+                $('#ClickToViewBids').text('View All Bids (' + response.bidViewModels.length + ')');
+                for (var i = 0; i < response.bidViewModels.length; i++) {
+                    var data = response.bidViewModels[i];
+                    $('#ModalTable tbody').append($('<tr>')
+                        .append($('<td>', { text: new Date(data.createdAt) }))
+                        .append($('<td>', { text: data.bidder }))
+                        .append($('<td>', { text: '$ ' + data.amount }))
+                        .append($('</tr>'))
+                    )
+                };
+            },
+            dataType: "json"
+        });
+    };
+
     $(document).ready(function () {
         $('#ItemImage').each(function (i, e) {
             $(e).wrap('<div class="img-wrapper"></div>');
         });
+        getBidUpdates();
     })
+</script>
+<script src="~/js/signal.js"></script>
+
+<script >
+    var connection = new signalR.HubConnectionBuilder().withUrl("/bidHub").build();
+    document.getElementById("BidNow").disabled = true;
+    connection.on("ReceiveSignal", function (user, message) {
+        getBidUpdates();
+    });
+    connection.start().then(function () {
+        document.getElementById("BidNow").disabled = false;
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+    document.getElementById("BidNow").addEventListener("click", function (event) {
+        connection.invoke("SendSignal").catch(function (err) {
+            return console.error(err.toString());
+        });
+    });
 </script>
 
 <script>

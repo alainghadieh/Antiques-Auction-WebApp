@@ -117,11 +117,9 @@ namespace Antiques_Auction_WebApp.Controllers
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
-            int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(id);
-            ViewBag.HighestBidOnItem = highestBidOnItem ?? null;
-            ViewBag.MinAmountAllowed = (highestBidOnItem != null) ? highestBidOnItem + 1 : item.Price;
             ViewBag.MaxAmountAllowed = null;
             ViewBag.NotAllowedToBid = false;
+            ViewBag.BidCount = _bidSvc.GetBidsForItem(id).Count;
             Bid oldBid = _bidSvc.GetBiddersBidOnItem(item.Id, User.Identity.Name);
             ViewBag.OldBidId = oldBid?.Id ?? null;
             if (oldBid != null)
@@ -130,11 +128,7 @@ namespace Antiques_Auction_WebApp.Controllers
                 if (ViewBag.MinAmountAllowed > ViewBag.MaxAmountAllowed)
                     ViewBag.NotAllowedToBid = true;
             }
-            ViewBag.ViewModel = new ItemDetailsViewModel()
-            {
-                AntiqueItemViewModel = viewModel,
-                BidViewModels = _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(item.Id))
-            };
+            ViewBag.ViewModel = viewModel;
             ViewData["RemainingTime"] = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
             List<NotificationViewModel> notifications = new List<NotificationViewModel>();
             notifications = _mapper.Map<List<NotificationViewModel>>(_notifSvc.Read(User.Identity.Name));
@@ -142,7 +136,17 @@ namespace Antiques_Auction_WebApp.Controllers
             Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
             return View(new BidViewModel());
         }
-
+        public JsonResult GetBidUpdates(string itemId)
+        {
+            Dictionary<string,object> result = new Dictionary<string, object>();
+            int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(itemId);
+            int? minAmountAllowed = (highestBidOnItem != null) ? (highestBidOnItem + 1) : null;
+            result.Add("highestBidOnItem",highestBidOnItem);
+            result.Add("minAmountAllowed",minAmountAllowed);
+            var bidViewModels = _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(itemId));
+            result.Add("bidViewModels",bidViewModels);
+            return Json(result);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Regular")]
