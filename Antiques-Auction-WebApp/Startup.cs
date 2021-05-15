@@ -1,5 +1,6 @@
 using Antiques_Auction_WebApp.Services;
 using Antiques_Auction_WebApp.Data;
+using Antiques_Auction_WebApp.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +44,7 @@ namespace Antiques_Auction_WebApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +73,7 @@ namespace Antiques_Auction_WebApp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<BidHub>("/bidHub");
             });
         }
     }
