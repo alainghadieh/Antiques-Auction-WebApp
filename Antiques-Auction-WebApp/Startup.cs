@@ -10,7 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Antiques_Auction_WebApp.MailService;
+using System;
 namespace Antiques_Auction_WebApp
 {
     public class Startup
@@ -45,6 +47,16 @@ namespace Antiques_Auction_WebApp
             services.AddAutoMapper(typeof(Startup));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddSignalR();
+            services.AddTransient<IEmailSender, MailKitEmailSender>();
+            services.Configure<MailKitEmailSenderOptions>(options =>
+            {
+                options.HostAddress = Configuration["ExternalProviders:MailKit:SMTP:Address"];
+                options.HostPort = Convert.ToInt32(Configuration["ExternalProviders:MailKit:SMTP:Port"]);
+                options.HostUsername = Configuration["ExternalProviders:MailKit:SMTP:Account"];
+                options.HostPassword = Configuration["ExternalProviders:MailKit:SMTP:Password"];
+                options.SenderEmail = Configuration["ExternalProviders:MailKit:SMTP:SenderEmail"];
+                options.SenderName = Configuration["ExternalProviders:MailKit:SMTP:SenderName"];
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
