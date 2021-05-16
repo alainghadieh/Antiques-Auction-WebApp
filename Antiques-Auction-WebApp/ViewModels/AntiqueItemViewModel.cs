@@ -24,6 +24,8 @@ namespace Antiques_Auction_WebApp.ViewModels
         [Display(Name = "End Date and Time"), DataType(DataType.DateTime), Required]
         [BindProperty, DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
         public DateTime AuctionCloseDateTime { get; set; }
+        public bool BiddingClosed { get; set;}
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             List<ValidationResult> errors = new List<ValidationResult>();

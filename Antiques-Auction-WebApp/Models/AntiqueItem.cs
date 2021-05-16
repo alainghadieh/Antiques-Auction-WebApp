@@ -17,5 +17,6 @@ namespace Antiques_Auction_WebApp.Models
         public DateTime AuctionOpenDateTime { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime AuctionCloseDateTime { get; set; }
+        public bool BiddingClosed { get; set;}
     }
 }
