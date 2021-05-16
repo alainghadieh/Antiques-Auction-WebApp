@@ -4,10 +4,6 @@
     Layout = "_Layout";
     CultureInfo ci = new CultureInfo("en-us");
     ViewData["Title"] = "Item Details - " + ViewBag.ViewModel.Name;
-    int bidCount = ViewBag.BidCount;
-    string toggleDisableAnchor = bidCount == 0 ? "disabled-link" : "";
-    string hideBidding = ViewBag.NotAllowedToBid ? "d-none" : "";
-    string hideDoNotBidAlert = ViewBag.NotAllowedToBid ? "" : "d-none";
 }
 <div class="container">
     <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="history.back(-1)"><i
@@ -25,7 +21,7 @@
             </div>
         </div>
 
-        <div class="col-sm-8 col-md-5 col-lg-5">
+        <div id="AuctionOpenDialog" class="col-sm-8 col-md-5 col-lg-5">
             <div class="card" style="">
                 <div class="card-body">
                     <h4 class="roboto-condensed" style="margin-bottom: 15px;">Auction Time Left</h4>
@@ -61,28 +57,15 @@
                         CultureInfo.CreateSpecificCulture("en-US"))</h6>
                 </div>
                 <hr />
-                @if (bidCount == 0)
-                {
-                    <div class="center card-body" style="text-align: center;">
-                        <h1>@ViewBag.ViewModel.Price.ToString("C0", ci)</h1>
-                        <h5 class="poppins">Starting Bid</h5>
-                        <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
-                        data-toggle="modal" data-target="#BidHistory">View All Bids (0)</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="center card-body" style="text-align: center !important;">
-                        <h1 id="HighestBidOnItem"></h1>
-                        <h5 class="poppins" style="text-align:center;">Current Highest Bid</h5>
-                        <a class="roboto-condensed center" id="ClickToViewBids" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
-                        data-toggle="modal" data-target="#BidHistory"></a> 
-                    </div>
-                }
+                <div class="center card-body" style="text-align: center !important;">
+                    <h1 id="HighestBidOnItem"></h1>
+                    <h5 class="poppins" id="BidHeader" style="text-align:center;"></h5>
+                    <a class="roboto-condensed center" id="ClickToViewBids" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
+                    data-toggle="modal" data-target="#BidHistory"></a> 
+                </div>
                 @if (User.IsInRole("Regular"))
                 {
-
-                    <div class="roboto-condensed text-danger @hideDoNotBidAlert card-body">
+                    <div id="NotAllowedToBidMessage" class="roboto-condensed text-danger card-body">
                         <p style="margin-bottom:0px"><strong>You are not allowed to bid at this
                                 time!</strong></p>
                         <ul>
@@ -95,8 +78,8 @@
                         </ul>
                     </div>
                     <form method="post" asp-action="CreateBid" asp-controller="AntiqueItem">
-                        <fieldset class="@hideBidding card-body">
-                            <input type="hidden" asp-for="Id" value="@ViewBag.OldBidId">
+                        <fieldset id="fieldset" class="card-body">
+                            <input type="hidden" id="Id" name="Id">
                             <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
                             <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModel.Id">
 
@@ -104,8 +87,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
                                 </div>
-                                <input class="form-control" asp-for="Amount" 
-                                max="@ViewBag.MaxAmountAllowed">
+                                <input class="form-control" asp-for="Amount">
                                 <div class="input-group-append">
                                     <span class="input-group-text">.00</span>
                                 </div>
@@ -138,6 +120,26 @@
                         </fieldset>
                     </form>
                 }
+            </div>
+        </div>
+        <div id="AuctionClosedDialog" class="col-sm-8 col-md-5 col-lg-5">
+            <div class="card" style="">
+                <div class="card-body">
+                    <br />
+                    <h6 class="roboto-condensed center" style="font-weight: 900;">Auction ended on
+                        @ViewBag.ViewModel.AuctionCloseDateTime.ToString("f",
+                        CultureInfo.CreateSpecificCulture("en-US"))</h6>
+                </div>
+                <hr />
+                <div class="center card-body" style="text-align: center !important;">
+                    <h1 id="FinalBid"></h1>
+                    <h5 class="poppins" style="text-align:center;">Final Bid</h5>
+                    <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
+                    data-toggle="modal" data-target="#BidHistory">View bid history table</a> 
+                </div>
+                <div class="roboto-condensed center text-danger card-body">
+                    <p id="AwardedToMessage" style="margin-bottom:0px"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -193,23 +195,60 @@
 <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
 
 <script>
+    var notAllowedToBid = false;
+    var turnOnTimer = false;
     function getBidUpdates() {
         $.ajax({
             type: "GET",
             url: "/AntiqueItem/GetBidUpdates",
             data: { "itemId": $("#AntiqueItemId").val() },
             success: function (response) {
-                console.log(response);
-                $('#ModalTable tbody').empty();
-                $('#Amount').attr({
-                    "min": response.minAmountAllowed,
-                    "value": response.minAmountAllowed
-                });
-                $('#HighestBidOnItem').empty();
-                $('#ClickToViewBids').empty();
+                if (response.biddingClosed == false)
+                {
+                    turnOnTimer = true;
+                    $('#AuctionClosedDialog').hide()
+                    $('#AuctionOpenDialog').show()
+                    $('#ClickToViewBids').empty();
+                    $('#HighestBidOnItem').empty();
+                    $('#BidHeader').empty();
+                    $('#Amount').empty();
+                    $('#ClickToViewBids').text('View All Bids (' + response.bidViewModels.length + ')');
+                    $('#Amount').attr({
+                        "min": response.minAmountAllowed,
+                        "max": response.maxAmountAllowed,
+                        "value": response.minAmountAllowed
+                    });
+                    if (response.price != 0)
+                    {
+                        $('#NotAllowedToBidMessage').hide();
+                        $('#fieldset').show();
+                        $('#HighestBidOnItem').text('$ ' + response.price);
+                        $('#BidHeader').text('Starting Bid');
+                    } else {
+                        $('#Id').attr({"value": response.oldBidId});
+                        $('#HighestBidOnItem').text('$ ' + response.highestBidOnItem);
+                        notAllowedToBid = response.notAllowedToBid;
+                        $('#BidHeader').text('Current Highest Bid');
+                        if(notAllowedToBid)
+                        {
+                            $('#NotAllowedToBidMessage').show();
+                            $('#fieldset').hide();
+                        } else 
+                        {
+                            $('#NotAllowedToBidMessage').hide();
+                            $('#fieldset').show();
+                        }
+                    }
 
-                $('#HighestBidOnItem').text('$ ' + response.highestBidOnItem);
-                $('#ClickToViewBids').text('View All Bids (' + response.bidViewModels.length + ')');
+                } else {
+                    $('#AuctionClosedDialog').show()
+                    $('#AuctionOpenDialog').hide()
+                    $('#FinalBid').empty();
+                    $('#AwardedToMessage').empty();
+                    $('#FinalBid').text('$ ' + response.highestBidOnItem);
+                    $('#AwardedToMessage').text('This item was awarded to ' + response.winner + '.');
+                }
+                $('#ModalTable tbody').empty();
                 for (var i = 0; i < response.bidViewModels.length; i++) {
                     var data = response.bidViewModels[i];
                     $('#ModalTable tbody').append($('<tr>')
@@ -231,7 +270,6 @@
         getBidUpdates();
     })
 </script>
-<script src="~/js/signal.js"></script>
 
 <script >
     var connection = new signalR.HubConnectionBuilder().withUrl("/bidHub").build();
@@ -281,5 +319,8 @@
         $('#minutes').html(_minutes)
         $('#seconds').html(_seconds)
     }
-    timer = setInterval(showRemaining, 1000);
+    if(turnOnTimer == true)
+    {
+        timer = setInterval(showRemaining, 1000);
+    }
 </script>
