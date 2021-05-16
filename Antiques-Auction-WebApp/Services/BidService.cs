@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Antiques_Auction_WebApp.Data;
 using Antiques_Auction_WebApp.Models;
 using MongoDB.Driver;
-
+using System.Linq;
 namespace Antiques_Auction_WebApp.Services
 {
     public class BidService
@@ -25,11 +25,17 @@ namespace Antiques_Auction_WebApp.Services
         public List<Bid> GetBidsForItem(string antiqueItemId) =>
             _bids.Find(b => b.AntiqueItemId == antiqueItemId).SortByDescending(b => b.CreatedAt).ToList();
 
+        public Bid GetLastBidForItem(string antiqueItemId) =>
+            _bids.Find(b => b.AntiqueItemId == antiqueItemId).SortByDescending(b => b.CreatedAt).FirstOrDefault();
+        public List<Bid> GetLosingBids(string antiqueItemId, string winner) =>
+            _bids.Find(b => b.AntiqueItemId == antiqueItemId && b.Bidder != winner).ToList();
+
         public Bid GetBiddersBidOnItem(string itemId, string userName) =>
             _bids.Find(b => b.AntiqueItemId == itemId && b.Bidder == userName).SingleOrDefault();
-
         public int? GetHighestBidOnItem(string itemId) =>
             _bids.Find(b => b.AntiqueItemId == itemId).SortByDescending(b => b.Amount).FirstOrDefault()?.Amount;
+        public Bid GetWinningBid(string itemId) =>
+            _bids.AsQueryable().Where(b => b.State == Models.State.Won).FirstOrDefault();
 
         public int GetHiggestBid() =>
             _bids.Aggregate()
@@ -49,7 +55,10 @@ namespace Antiques_Auction_WebApp.Services
             }
             return sum;
         }
-
+        public List<string>GetItemBidders(string itemId)
+        {
+            return _bids.AsQueryable().Where(x => x.AntiqueItemId == itemId).Select(x => x.Bidder).ToList();
+        }
         public void Update(Bid bid) =>
             _bids.ReplaceOne(b => b.Id == bid.Id, bid);
 
