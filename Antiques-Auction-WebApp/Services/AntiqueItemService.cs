@@ -30,8 +30,8 @@ namespace Antiques_Auction_WebApp.Services
         public IList<AntiqueItem> Read() =>
             _antiques.Find(item => true).SortByDescending(a => a.AuctionCloseDateTime).ToList();
 
-        public List<AntiqueItem> GetItemsForSale() =>
-            _antiques.Find(item => item.AuctionOpenDateTime <= DateTime.Now && item.AuctionCloseDateTime > DateTime.Now).ToList();
+        public List<AntiqueItem> GetItemsUpForBidding() =>
+            _antiques.Find(item => item.BiddingClosed == false).ToList();
 
         public AntiqueItem Find(string id) =>
             _antiques.Find(item => item.Id == id).SingleOrDefault();
