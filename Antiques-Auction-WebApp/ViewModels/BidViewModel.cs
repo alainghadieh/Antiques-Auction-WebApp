@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Antiques_Auction_WebApp.Models;
 
 namespace Antiques_Auction_WebApp.ViewModels
 {
@@ -12,6 +13,7 @@ namespace Antiques_Auction_WebApp.ViewModels
         public int Amount { get; set; }
         [Display(Name = "Allow Auto-Bidding")]
         public bool AutoBiddingEnabled { get; set; }
+        public State State { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

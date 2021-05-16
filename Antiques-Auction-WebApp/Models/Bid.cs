@@ -1,9 +1,17 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Antiques_Auction_WebApp.Models
 {
+    public enum State 
+    {
+        Lost,
+        InProgress,
+        Won
+    }
     public class Bid
     {
         [BsonId]
@@ -13,6 +21,9 @@ namespace Antiques_Auction_WebApp.Models
         public string AntiqueItemId { get; set; }
         public int Amount { get; set; }
         public bool AutoBiddingEnabled { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))] 
+        [BsonRepresentation(BsonType.String)]         
+        public State State { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime CreatedAt { get; set; }
     }
