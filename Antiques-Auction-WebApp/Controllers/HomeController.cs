@@ -50,7 +50,7 @@ namespace Antiques_Auction_WebApp.Controllers
 
             Session.SetString(_NotificationsSessionKey, JsonConvert.SerializeObject(notifications));
             Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
-            return View(_mapper.Map<List<AntiqueItemViewModel>>(_antqSvc.GetItemsForSale()));
+            return View(_mapper.Map<List<AntiqueItemViewModel>>(_antqSvc.Read()));
         }
 
         [Authorize(Roles = "Regular")]

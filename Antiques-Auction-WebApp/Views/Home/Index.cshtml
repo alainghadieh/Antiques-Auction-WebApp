@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Home Page";
     CultureInfo ci = new CultureInfo("en-us");
+    string actionName = "";
 }
 
 <div class="content">
@@ -41,6 +42,7 @@
                                 <tbody>
                                     @foreach (var item in Model)
                                     {
+                                        actionName = (item.BiddingClosed == false) ? "Bid Now": "View";
                                         <tr scope="row" style="text-align:center">
                                             <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
                                                 style="width:100px"></th>
@@ -48,7 +50,7 @@
                                             <th class="align-middle">@item.Price.ToString("C0", ci)</th>
                                             <th class="align-middle">@item.Description</th>
                                             <th class="align-middle"><a class="btn btn-secondary" asp-route="antiqueItemRoute"
-                                                asp-route-id="@item.Id">Bid Now</a></th>
+                                                asp-route-id="@item.Id">@actionName</a></th>
                                         </tr>
                                     }
                                 </tbody>
