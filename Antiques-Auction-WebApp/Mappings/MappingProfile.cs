@@ -12,6 +12,7 @@ namespace Antiques_Auction_WebApp.Mappings
             CreateMap<Bid, BidViewModel>().ReverseMap();
             CreateMap<AntiqueItem, AntiqueItemViewModel>().ReverseMap();
             CreateMap<Notification, NotificationViewModel>().ReverseMap();
+            CreateMap<Bill, BillViewModel>().ReverseMap();
         }
     }
 }

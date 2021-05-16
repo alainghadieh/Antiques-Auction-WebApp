@@ -35,6 +35,7 @@ namespace Antiques_Auction_WebApp
             services.AddSingleton<BidService>();
             services.AddSingleton<AutoBidConfigService>();
             services.AddSingleton<NotificationService>();
+            services.AddSingleton<BillService>();
             services.AddSingleton<EmailService>();
             services.AddSingleton<IConfiguration>(Configuration);
             
