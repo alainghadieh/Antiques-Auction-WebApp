@@ -11,32 +11,37 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Antiques_Auction_WebApp.Helpers;
 namespace Antiques_Auction_WebApp.Controllers
 {
     public class AntiqueItemController : Controller
     {
         private readonly AntiqueItemService _antqSvc;
         private readonly BidService _bidSvc;
+        private readonly BillService _billSvc;
         private readonly AutoBidConfigService _configSvc;
         private readonly NotificationService _notifSvc;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IMapper _mapper;
+        private EmailService EmailService { get; set; }
         private ISession Session => _httpContextAccessor.HttpContext.Session;
         private readonly string _NotificationsSessionKey = "Notifications";
         private readonly string _notificationsCountSessionKey = "NotificationsCount";
 
-        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, AutoBidConfigService autoBidConfigService, NotificationService notificationService, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AntiqueItemController(AntiqueItemService antiqueItemService, BidService bidService, AutoBidConfigService autoBidConfigService, BillService billService, NotificationService notificationService, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IMapper mapper, EmailService emailService)
         {
             _antqSvc = antiqueItemService;
             _bidSvc = bidService;
+            _billSvc = billService;
             _configSvc = autoBidConfigService;
             _notifSvc = notificationService;
             _httpContextAccessor = httpContextAccessor;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            EmailService = emailService;
         }
 
         [Authorize(Roles = "Admin")]
@@ -62,6 +67,7 @@ namespace Antiques_Auction_WebApp.Controllers
                     string folder = "AntiqueItemImages/";
                     item.ImageUrl = await UploadImage(folder, viewModel.Image);
                 }
+                item.BiddingClosed = false;
                 string id = _antqSvc.Create(item);
                 if (!string.IsNullOrEmpty(id))
                 {
@@ -104,6 +110,7 @@ namespace Antiques_Auction_WebApp.Controllers
         {
             _antqSvc.Delete(id);
             _bidSvc.DeleteByItemId(id);
+            _billSvc.DeleteByItemId(id);
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -117,17 +124,6 @@ namespace Antiques_Auction_WebApp.Controllers
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
-            ViewBag.MaxAmountAllowed = null;
-            ViewBag.NotAllowedToBid = false;
-            ViewBag.BidCount = _bidSvc.GetBidsForItem(id).Count;
-            Bid oldBid = _bidSvc.GetBiddersBidOnItem(item.Id, User.Identity.Name);
-            ViewBag.OldBidId = oldBid?.Id ?? null;
-            if (oldBid != null)
-            {
-                ViewBag.MaxAmountAllowed = _bidSvc.GetHiggestBid() - 1;
-                if (ViewBag.MinAmountAllowed > ViewBag.MaxAmountAllowed)
-                    ViewBag.NotAllowedToBid = true;
-            }
             ViewBag.ViewModel = viewModel;
             ViewData["RemainingTime"] = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
             List<NotificationViewModel> notifications = new List<NotificationViewModel>();
@@ -138,13 +134,36 @@ namespace Antiques_Auction_WebApp.Controllers
         }
         public JsonResult GetBidUpdates(string itemId)
         {
-            Dictionary<string,object> result = new Dictionary<string, object>();
-            int? highestBidOnItem = _bidSvc.GetHighestBidOnItem(itemId);
-            int? minAmountAllowed = (highestBidOnItem != null) ? (highestBidOnItem + 1) : null;
-            result.Add("highestBidOnItem",highestBidOnItem);
-            result.Add("minAmountAllowed",minAmountAllowed);
-            var bidViewModels = _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(itemId));
-            result.Add("bidViewModels",bidViewModels);
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            int? highestBidOnItem = null;
+            AntiqueItem item = _antqSvc.Find(itemId);
+            result.Add("biddingClosed", item.BiddingClosed);
+            highestBidOnItem = _bidSvc.GetHighestBidOnItem(itemId);
+            if (item.BiddingClosed == true)
+            {
+                result.Add("winner", _bidSvc.GetWinningBid(itemId).Bidder);
+            }
+            else
+            {
+                int? minAmountAllowed = (highestBidOnItem != null) ? (highestBidOnItem + 1) : item.Price;
+                int? maxAmountAllowed = null;
+                bool notAllowedToBid = false;
+                Bid oldBid = _bidSvc.GetBiddersBidOnItem(itemId, User.Identity.Name);
+                if (oldBid != null)
+                {
+                    maxAmountAllowed = _bidSvc.GetHiggestBid() - 1;
+                    if (minAmountAllowed > maxAmountAllowed)
+                        notAllowedToBid = true;
+                    result.Add("oldBidId", oldBid.Id);
+                }
+                result.Add("minAmountAllowed", minAmountAllowed);
+                result.Add("maxAmountAllowed", maxAmountAllowed);
+                result.Add("notAllowedToBid", notAllowedToBid);
+            }
+            int? price = (highestBidOnItem != null) ? 0 : item.Price;
+            result.Add("highestBidOnItem", highestBidOnItem);
+            result.Add("price", price);
+            result.Add("bidViewModels", _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(itemId)));
             return Json(result);
         }
         [HttpPost]
@@ -155,12 +174,15 @@ namespace Antiques_Auction_WebApp.Controllers
             if (ModelState.IsValid)
             {
                 Bid bid = _mapper.Map<Bid>(viewModel);
+                bid.State = State.InProgress;
                 bid.CreatedAt = DateTime.UtcNow;
                 if (!string.IsNullOrEmpty(bid.Id))
                     _bidSvc.Update(bid);
                 else
                     _bidSvc.Create(bid);
                 AutoBid(bid.AntiqueItemId);
+                var item = _antqSvc.Find(viewModel.AntiqueItemId);
+                EmailService.NotifyBidders(item, viewModel.Amount);
                 return RedirectToAction("Index", "Home", new { isSuccess = true });
             }
             return RedirectToAction("Index", "Home", new { isSuccess = false });
@@ -177,14 +199,19 @@ namespace Antiques_Auction_WebApp.Controllers
                     var reserved = _bidSvc.GetReservedAmountByAutoBid(bid.Bidder);
                     var bidderConfig = _configSvc.Find(bid.Bidder);
                     CheckIfPassedAlertThreshold(bidderConfig, reserved);
-                    if (highestBid + 1 <= (bidderConfig.MaxBidAmount - reserved))
+                    if (highestBid + 1 > (bidderConfig.MaxBidAmount - reserved))
+                    {
+                        SendNotification("Insufficient Funds!", bidderConfig.UserName);
+                        EmailService.NotifyAutoBidFailed(bid.Bidder, itemId);
+                    }
+                    else
                     {
                         bid.Amount = highestBid + 1;
                         bid.CreatedAt = DateTime.UtcNow;
                         _bidSvc.Update(bid);
+                        if (highestBid + 1 == (bidderConfig.MaxBidAmount - reserved))
+                            EmailService.NotifyTotalAmountBid(bid.Bidder, itemId, highestBid + 1);
                     }
-                    else
-                        SendNotification("Insufficient Funds!", bidderConfig.UserName);
                 }
             }
         }
