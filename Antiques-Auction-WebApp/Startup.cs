@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Antiques_Auction_WebApp.MailService;
 using System;
+using Antiques_Auction_WebApp.Helpers;
+
 namespace Antiques_Auction_WebApp
 {
     public class Startup
@@ -33,6 +35,8 @@ namespace Antiques_Auction_WebApp
             services.AddSingleton<BidService>();
             services.AddSingleton<AutoBidConfigService>();
             services.AddSingleton<NotificationService>();
+            services.AddSingleton<EmailService>();
+            services.AddSingleton<IConfiguration>(Configuration);
             
             services.Configure<CookiePolicyOptions>(options =>
             {
