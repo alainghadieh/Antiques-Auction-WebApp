@@ -1,16 +1,14 @@
 using System;
+using Antiques_Auction_WebApp.Models;
 
 namespace Antiques_Auction_WebApp.ViewModels
 {
-    public class BillViewModel
+    public class HistoricalBidViewModel
     {
-        public string Id { get; set; }
-        public string Winner { get; set; }
         public int Amount { get; set; }
+        public State State{ get; set; }
         public DateTime CreatedAt { get; set; }
         public string ItemName { get;set; }
-        public string ItemDescription { get;set; }
         public string ImageUrl { get;set; }
-        public int ItemPrice { get;set; }
     }
 }
