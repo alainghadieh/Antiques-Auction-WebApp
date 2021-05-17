@@ -1,0 +1,191 @@
+@using System.Globalization
+@{
+    ViewData["Title"] = "User Profile Page";
+    CultureInfo ci = new CultureInfo("en-us");
+}
+
+<div class="content">
+    <div class="container-fluid">
+        <button type="button" class="btn btn-secondary text-white mb-2 roboto-condensed" onclick="history.back(-1)"><i
+        class="fas fa-arrow-left"></i> go back</button>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="pl-3">
+                                <h4 class="card-title align-middle poppins" style="margin-bottom:0px;">Your Bids</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables-1" class="table table-striped table-hover" style="text-align:center;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Item Name</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">State</th>
+                                        <th scope="col">Created On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.Bids)
+                                    {
+
+                                        <tr scope="row" style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
+                                                style="width:100px"></th>
+                                            <th class="align-middle">@item.ItemName</th>
+                                            <th class="align-middle">@item.Amount.ToString("C0", ci)</th>
+                                            @if(item.State == State.InProgress)
+                                            {
+                                                <th class="align-middle">In Progress</th>
+                                            } else{
+                                                <th class="align-middle">@item.State</th>
+                                            }
+                                            <th class="align-middle">@item.CreatedAt.ToString("f",
+                        CultureInfo.CreateSpecificCulture("en-US"))</th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="pl-3">
+                                <h4 class="card-title align-middle poppins" style="margin-bottom:0px;">Your Awards</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables-2" class="table table-striped table-hover" style="text-align:center;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Item Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Initial Price</th>
+                                        <th scope="col">Awarded On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.Awards)
+                                    {
+                                        <tr scope="row" style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
+                                                style="width:100px"></th>
+                                            <th class="align-middle">@item.ItemName</th>
+                                            <th class="align-middle">@item.ItemDescription</th>
+                                            <th class="align-middle">@item.ItemPrice.ToString("C0", ci)</th>
+                                            <th class="align-middle">@item.CreatedAt.ToString("f",
+                        CultureInfo.CreateSpecificCulture("en-US"))</th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="pl-3">
+                                <h4 class="card-title align-middle poppins" style="margin-bottom:0px;">Your Bills</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables-3" class="table table-striped table-hover" style="text-align:center;">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Item Name</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Created On</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in ViewBag.Awards)
+                                    {
+                                        <tr scope="row" style="text-align:center">
+                                            <th><img src="~/AntiqueItemImages/@item.ImageUrl" class="align-middle"
+                                                style="width:100px"></th>
+                                            <th class="align-middle">@item.ItemName</th>
+                                            <th class="align-middle">@item.Amount.ToString("C0", ci)</th>
+                                            <th class="align-middle">@item.CreatedAt.ToString("f",
+                        CultureInfo.CreateSpecificCulture("en-US"))</th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    
+    $(document).ready(function () {
+        $('#basic-datatables-1').DataTable({
+            "order": [],
+            "columnDefs": [
+                { searchable: false, targets: [0, 2, 4] },
+                { orderable: false, targets: [0] }
+            ],
+            pageLength: 10,
+            aLengthMenu: [
+                [10, 50, 100, -1],
+                [10, 50, 100, "All"]
+            ],
+            iDisplayLength: -1
+        });
+        $('#basic-datatables-2').DataTable({
+            "order": [],
+            "columnDefs": [
+                { searchable: false, targets: [0, 3, 4] },
+                { orderable: false, targets: [0] }
+            ],
+            pageLength: 10,
+            aLengthMenu: [
+                [10, 50, 100, -1],
+                [10, 50, 100, "All"]
+            ],
+            iDisplayLength: -1
+        });
+        $('#basic-datatables-3').DataTable({
+            "order": [],
+            "columnDefs": [
+                { searchable: false, targets: [0, 2, 3] },
+                { orderable: false, targets: [0] }
+            ],
+            pageLength: 10,
+            aLengthMenu: [
+                [10, 50, 100, -1],
+                [10, 50, 100, "All"]
+            ],
+            iDisplayLength: -1
+        });
+    });
+</script>
