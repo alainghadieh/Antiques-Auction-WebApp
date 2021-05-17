@@ -18,6 +18,7 @@ namespace Antiques_Auction_WebApp.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         public string Bidder { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
         public string AntiqueItemId { get; set; }
         public int Amount { get; set; }
         public bool AutoBiddingEnabled { get; set; }

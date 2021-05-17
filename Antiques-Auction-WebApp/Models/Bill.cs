@@ -10,6 +10,7 @@ namespace Antiques_Auction_WebApp.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
         public string Winner { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
         public string AntiqueItemId { get; set; }
         public int Amount { get; set; }
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
