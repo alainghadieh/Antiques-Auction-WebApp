@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Antiques_Auction_WebApp.MailService;
 using System;
 using Antiques_Auction_WebApp.Helpers;
+using Antiques_Auction_WebApp.Interfaces;
+
 
 namespace Antiques_Auction_WebApp
 {
@@ -53,6 +55,7 @@ namespace Antiques_Auction_WebApp
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddSignalR();
             services.AddTransient<IEmailSender, MailKitEmailSender>();
+            services.AddTransient<IAuctionRepository, AuctionRepository>();
             services.Configure<MailKitEmailSenderOptions>(options =>
             {
                 options.HostAddress = Configuration["ExternalProviders:MailKit:SMTP:Address"];
