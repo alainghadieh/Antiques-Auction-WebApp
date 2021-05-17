@@ -48,6 +48,10 @@
                         </ul>
                         @if (User.IsInRole("Regular"))
                         {
+                            <a class="nav-link text-white mx-1 my-1" href="/Profile/Index">
+                                <i class="fas fa-user-circle"></i>
+                                Profile
+                            </a>
                             <a class="nav-link text-white mx-1 my-1" href="/Notification/Index">
                                 <i class="far fa-bell"></i>
                                 Alerts (@Context.Session.GetInt32(_notificationsCountSessionKey).ToString())
