@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Antiques_Auction_WebApp.Helpers;
+using System.Globalization;
+
 namespace Antiques_Auction_WebApp.Controllers
 {
     public class AntiqueItemController : Controller
@@ -124,13 +126,29 @@ namespace Antiques_Auction_WebApp.Controllers
             ViewBag.IsSuccess = isSuccess;
             AntiqueItem item = _antqSvc.Find(id);
             AntiqueItemViewModel viewModel = _mapper.Map<AntiqueItemViewModel>(item);
-            ViewBag.ViewModel = viewModel;
-            ViewData["RemainingTime"] = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
+            ViewBag.ViewModelId = viewModel.Id;
             List<NotificationViewModel> notifications = new List<NotificationViewModel>();
             notifications = _mapper.Map<List<NotificationViewModel>>(_notifSvc.Read(User.Identity.Name));
             Session.SetString(_NotificationsSessionKey, JsonConvert.SerializeObject(notifications));
             Session.SetInt32(_notificationsCountSessionKey, notifications.Count);
             return View(new BidViewModel());
+        }
+        public JsonResult GetItemDetails(string itemId)
+        {
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            AntiqueItem item = _antqSvc.Find(itemId);
+            CultureInfo ci = new CultureInfo("en-us");
+            string message = "";
+            if (item.BiddingClosed == false)
+                message = $"Ends {item.AuctionCloseDateTime.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))}";
+            else
+                message = $"Auction ended on {item.AuctionCloseDateTime.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))}";
+            AntiqueItemViewModel itemViewModel = _mapper.Map<AntiqueItemViewModel>(item);
+            result.Add("itemViewModel", itemViewModel);
+            result.Add("message", message);
+            string remainingTime = item.AuctionCloseDateTime.ToString("dd-MM-yyyy h:mm:ss tt");
+            result.Add("remainingTime", remainingTime);
+            return Json(result);
         }
         public JsonResult GetBidUpdates(string itemId)
         {
