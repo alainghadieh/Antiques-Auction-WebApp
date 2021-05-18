@@ -61,7 +61,7 @@
                         <label asp-for="AuctionCloseDateTime" class="control-label"></label>
                         <input class="form-control" asp-for="AuctionCloseDateTime">
                         <div class="form-group mt-4">
-                            <input type="submit" class="btn btn-success center poppins" value="Save Item">
+                            <input type="submit" id="SubmitButton" class="btn btn-success center poppins" value="Save Item">
                         </div>
                     </div>
             </form>
@@ -69,4 +69,20 @@
     </div>
 </div>
 
-<script src="../lib/jquery/dist/jquery.min.js"></script>
+<script src="../../lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/bidHub").build();
+    connection.start().then(function () {
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+    connection.on("ReceiveSignal", function (user, message) {
+    });
+    document.getElementById("SubmitButton").addEventListener("click", function (event) {
+        connection.invoke("SendSignal").catch(function (err) {
+            return console.error(err.toString());
+        });
+    });
+</script>
