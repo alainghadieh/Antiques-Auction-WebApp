@@ -47,29 +47,32 @@ namespace Antiques_Auction_WebApp.BackgroundTasks
                 if (DateTime.Now >= item.AuctionCloseDateTime)
                 {
                     var winningBid = _bidSvc.GetLastBidForItem(item.Id);
-                    winningBid.State = Models.State.Won;
-                    winningBid.AutoBiddingEnabled = false;
-                    _bidSvc.Update(winningBid);
-                    var losingBids = _bidSvc.GetLosingBids(item.Id, winningBid.Bidder);
-                    item.BiddingClosed = true;
-                    _antqSvc.Update(item);
                     if (winningBid != null)
                     {
-                        var bill = new Models.Bill();
-                        bill.Winner = winningBid.Bidder;
-                        bill.Amount = winningBid.Amount;
-                        bill.AntiqueItemId = item.Id;
-                        bill.CreatedAt = DateTime.Now;
-                        _billSvc.Create(bill);
-                        EmailService.NotifyWinner(winningBid.Bidder, item.Name);
-                        foreach(var bid in losingBids)
+                        winningBid.State = Models.State.Won;
+                        winningBid.AutoBiddingEnabled = false;
+                        _bidSvc.Update(winningBid);
+                        var losingBids = _bidSvc.GetLosingBids(item.Id, winningBid.Bidder);
+                        if (winningBid != null)
                         {
-                            bid.State = Models.State.Lost;
-                            bid.AutoBiddingEnabled = false;
-                            _bidSvc.Update(bid);
-                            EmailService.NotifyItemAwarded(bid.Bidder, item.Name, winningBid);
+                            var bill = new Models.Bill();
+                            bill.Winner = winningBid.Bidder;
+                            bill.Amount = winningBid.Amount;
+                            bill.AntiqueItemId = item.Id;
+                            bill.CreatedAt = DateTime.Now;
+                            _billSvc.Create(bill);
+                            EmailService.NotifyWinner(winningBid.Bidder, item.Name);
+                            foreach (var bid in losingBids)
+                            {
+                                bid.State = Models.State.Lost;
+                                bid.AutoBiddingEnabled = false;
+                                _bidSvc.Update(bid);
+                                EmailService.NotifyItemAwarded(bid.Bidder, item.Name, winningBid);
+                            }
                         }
                     }
+                    item.BiddingClosed = true;
+                    _antqSvc.Update(item);
                 }
             }
             _logger.LogInformation(
