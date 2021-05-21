@@ -14,6 +14,6 @@ namespace Antiques_Auction_WebApp.ViewModels
         [Display(Name = "Allow Auto-Bidding")]
         public bool AutoBiddingEnabled { get; set; }
         public State State { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
     }
 }

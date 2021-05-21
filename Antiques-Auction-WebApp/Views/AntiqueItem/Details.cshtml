@@ -273,7 +273,7 @@
                 for (var i = 0; i < response.bidViewModels.length; i++) {
                     var data = response.bidViewModels[i];
                     $('#ModalTable tbody').append($('<tr>')
-                        .append($('<td>', { text: new Date(data.createdAt) }))
+                        .append($('<td>', { text: data.createdAt }))
                         .append($('<td>', { text: data.bidder }))
                         .append($('<td>', { text: '$ ' + data.amount }))
                         .append($('</tr>'))
