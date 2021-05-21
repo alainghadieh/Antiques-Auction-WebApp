@@ -35,7 +35,7 @@ namespace Antiques_Auction_WebApp.Services
         public int? GetHighestBidOnItem(string itemId) =>
             _bids.Find(b => b.AntiqueItemId == itemId).SortByDescending(b => b.Amount).FirstOrDefault()?.Amount;
         public Bid GetWinningBid(string itemId) =>
-            _bids.AsQueryable().Where(b => b.State == Models.State.Won).FirstOrDefault();
+            _bids.AsQueryable().Where(b => b.State == Models.State.Won && b.AntiqueItemId == itemId).FirstOrDefault();
 
         public int GetHiggestBid() =>
             _bids.Aggregate()

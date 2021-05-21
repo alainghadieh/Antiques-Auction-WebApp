@@ -128,7 +128,7 @@
                 <hr />
                 <div class="center card-body" style="text-align: center !important;">
                     <h1 id="FinalBid"></h1>
-                    <h5 class="poppins" style="text-align:center;">Final Bid</h5>
+                    <h5 class="poppins" id="FinalBidLabel" style="text-align:center;">Final Bid</h5>
                     <a class="roboto-condensed center" style="color:#0056b3;cursor:pointer;white-space:nowrap;"
                         data-toggle="modal" data-target="#BidHistory">View bid history table</a>
                 </div>
@@ -266,7 +266,14 @@
                     $('#AuctionOpenDialog').hide()
                     $('#FinalBid').empty();
                     $('#AwardedToMessage').empty();
-                    $('#FinalBid').text('$ ' + response.highestBidOnItem);
+                    if (response.highestBidOnItem != null)
+                    {
+                        $('#FinalBid').text('$ ' + response.highestBidOnItem);
+                    } else 
+                    {
+                        $('#FinalBidLabel').hide();
+                        $('#FinalBid').text('No bids were placed on this item.');
+                    }
                     $('#AwardedToMessage').text('This item was awarded to ' + response.winner + '.');
                 }
                 $('#ModalTable tbody').empty();

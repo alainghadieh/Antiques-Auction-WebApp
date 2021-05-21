@@ -159,7 +159,7 @@ namespace Antiques_Auction_WebApp.Controllers
             highestBidOnItem = _bidSvc.GetHighestBidOnItem(itemId);
             if (item.BiddingClosed == true)
             {
-                result.Add("winner", _bidSvc.GetWinningBid(itemId).Bidder);
+                result.Add("winner", _bidSvc.GetWinningBid(itemId)?.Bidder??"no one");
             }
             else
             {
