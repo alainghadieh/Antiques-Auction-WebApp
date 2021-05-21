@@ -33,9 +33,8 @@ namespace Antiques_Auction_WebApp.Helpers
                 Send(GetBidderEmail(bidder), "Bid alert", $"The highest bid is now $ {amount} on {item.Name}");
             }
         }
-        public void NotifyAutoBidFailed(string bidder, string itemId)
+        public void NotifyAutoBidFailed(string bidder, AntiqueItem item)
         {
-            AntiqueItem item = _antqSvc.Find(itemId);
             Send(GetBidderEmail(bidder), "AutoBid failed!", $"An attempted autobid on {item.Name} failed because it exceeds the maximum autobid amount.");
         }
         public void NotifyTotalAmountBid(string bidder, string itemId, int amount)

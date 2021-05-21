@@ -201,40 +201,45 @@ namespace Antiques_Auction_WebApp.Controllers
                     _bidSvc.Update(bid);
                 else
                     _bidSvc.Create(bid);
-                AutoBid(bid.AntiqueItemId);
                 var item = _antqSvc.Find(viewModel.AntiqueItemId);
-                EmailService.NotifyBidders(item, viewModel.Amount);
+                int result = AutoBid(item);
+                if (result == 0) // if no autobidding done, then notify about the amount submitted
+                    EmailService.NotifyBidders(item, viewModel.Amount);
                 return RedirectToAction("Index", "Home", new { isSuccess = true });
             }
             return RedirectToAction("Index", "Home", new { isSuccess = false });
         }
 
-        private void AutoBid(string itemId)
+        private int AutoBid(AntiqueItem item)
         {
-            List<Bid> bids = _bidSvc.GetAutoBidsOnItem(itemId);
+            int result = 0;
+            List<Bid> bids = _bidSvc.GetAutoBidsOnItem(item.Id);
             foreach (var bid in bids)
             {
                 if (bid.Bidder != User.Identity.Name)
                 {
-                    int highestBid = (int)_bidSvc.GetHighestBidOnItem(itemId);
+                    int highestBid = (int)_bidSvc.GetHighestBidOnItem(item.Id);
                     var reserved = _bidSvc.GetReservedAmountByAutoBid(bid.Bidder);
                     var bidderConfig = _configSvc.Find(bid.Bidder);
                     CheckIfPassedAlertThreshold(bidderConfig, reserved);
                     if (highestBid + 1 > (bidderConfig.MaxBidAmount - reserved))
                     {
                         SendNotification("Insufficient Funds!", bidderConfig.UserName);
-                        EmailService.NotifyAutoBidFailed(bid.Bidder, itemId);
+                        EmailService.NotifyAutoBidFailed(bid.Bidder, item);
                     }
                     else
                     {
                         bid.Amount = highestBid + 1;
                         bid.CreatedAt = DateTime.UtcNow;
                         _bidSvc.Update(bid);
+                        result = 1; // autobid succeeded
+                        EmailService.NotifyBidders(item, highestBid + 1);
                         if (highestBid + 1 == (bidderConfig.MaxBidAmount - reserved))
-                            EmailService.NotifyTotalAmountBid(bid.Bidder, itemId, highestBid + 1);
+                            EmailService.NotifyTotalAmountBid(bid.Bidder, item.Id, highestBid + 1);
                     }
                 }
             }
+            return result;
         }
         private void CheckIfPassedAlertThreshold(AutoBidConfig config, int reservedAmount)
         {
