@@ -60,6 +60,7 @@
                         style="color:#0056b3;cursor:pointer;white-space:nowrap;" data-toggle="modal"
                         data-target="#BidHistory"></a>
                 </div>
+                <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModelId">
                 @if (User.IsInRole("Regular"))
                 {
                     <div id="NotAllowedToBidMessage" class="roboto-condensed text-danger card-body">
@@ -79,7 +80,6 @@
                             <input type="hidden" id="Id" name="Id">
                             <input type="hidden" asp-for="Bidder" value="@User.Identity.Name">
                             <input type="hidden" asp-for="AntiqueItemId" value="@ViewBag.ViewModelId">
-
                             <div class="input-group btn-group input-group-lg" role="group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">$</span>
