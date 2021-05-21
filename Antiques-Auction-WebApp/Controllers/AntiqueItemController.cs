@@ -157,6 +157,7 @@ namespace Antiques_Auction_WebApp.Controllers
             AntiqueItem item = _antqSvc.Find(itemId);
             result.Add("biddingClosed", item.BiddingClosed);
             highestBidOnItem = _bidSvc.GetHighestBidOnItem(itemId);
+            var autoBidEnabled = false;
             if (item.BiddingClosed == true)
             {
                 result.Add("winner", _bidSvc.GetWinningBid(itemId)?.Bidder??"no one");
@@ -173,12 +174,14 @@ namespace Antiques_Auction_WebApp.Controllers
                     if (minAmountAllowed > maxAmountAllowed)
                         notAllowedToBid = true;
                     result.Add("oldBidId", oldBid.Id);
+                    autoBidEnabled = oldBid.AutoBiddingEnabled;
                 }
                 result.Add("minAmountAllowed", minAmountAllowed);
                 result.Add("maxAmountAllowed", maxAmountAllowed);
                 result.Add("notAllowedToBid", notAllowedToBid);
             }
             int? price = (highestBidOnItem != null) ? 0 : item.Price;
+            result.Add("autoBidEnabled", autoBidEnabled);
             result.Add("highestBidOnItem", highestBidOnItem);
             result.Add("price", price);
             result.Add("bidViewModels", _mapper.Map<List<BidViewModel>>(_bidSvc.GetBidsForItem(itemId)));

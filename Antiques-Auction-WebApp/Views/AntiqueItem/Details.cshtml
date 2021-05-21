@@ -251,6 +251,13 @@
                         $('#Id').attr({ "value": response.oldBidId });
                         $('#HighestBidOnItem').text('$ ' + response.highestBidOnItem);
                         notAllowedToBid = response.notAllowedToBid;
+                        
+                        if(response.autoBidEnabled != false)
+                        {
+                            $('#AutoBiddingEnabled').attr({
+                                "checked": response.autoBidEnabled
+                            })
+                        }
                         $('#BidHeader').text('Current Highest Bid');
                         if (notAllowedToBid) {
                             $('#NotAllowedToBidMessage').show();
@@ -302,7 +309,6 @@
     function setCountdown() {
 
         var dateAr = dt.split('-');
-        console.log(dateAr)
         var newDate = dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2];
         var end = new Date(dateAr[1] + '/' + dateAr[0] + '/' + dateAr[2]);
 
