@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Antiques_Auction_WebApp.Helpers;
 using System.Globalization;
 
@@ -235,7 +234,7 @@ namespace Antiques_Auction_WebApp.Controllers
                         result = 1; // autobid succeeded
                         EmailService.NotifyBidders(item, highestBid + 1);
                         if (highestBid + 1 == (bidderConfig.MaxBidAmount - reserved))
-                            EmailService.NotifyTotalAmountBid(bid.Bidder, item.Id, highestBid + 1);
+                            EmailService.NotifyTotalAmountBid(bid.Bidder, item, highestBid + 1);
                     }
                 }
             }

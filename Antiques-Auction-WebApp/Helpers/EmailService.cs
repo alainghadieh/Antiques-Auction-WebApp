@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using System.Threading.Tasks;
 using Antiques_Auction_WebApp.Services;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
@@ -30,17 +28,16 @@ namespace Antiques_Auction_WebApp.Helpers
             List<string> bidders = _bidSvc.GetItemBidders(item.Id);
             foreach(var bidder in bidders)
             {
-                Send(GetBidderEmail(bidder), "Bid alert", $"The highest bid is now $ {amount} on {item.Name}");
+                Send(GetBidderEmail(bidder), "Bid alert", $"The highest bid is now ${amount} on {item.Name}");
             }
         }
         public void NotifyAutoBidFailed(string bidder, AntiqueItem item)
         {
             Send(GetBidderEmail(bidder), "AutoBid failed!", $"An attempted autobid on {item.Name} failed because it exceeds the maximum autobid amount.");
         }
-        public void NotifyTotalAmountBid(string bidder, string itemId, int amount)
+        public void NotifyTotalAmountBid(string bidder, AntiqueItem item, int amount)
         {
-            AntiqueItem item = _antqSvc.Find(itemId);
-            Send(GetBidderEmail(bidder), "Maximum AutoBid amount reached!", $"Your latest autobid on {item.Name} was just created and is at $ {amount}. After this autobid, you no longer have enough funds for future autobids!");
+            Send(GetBidderEmail(bidder), "Maximum AutoBid amount reached!", $"Your latest autobid on {item.Name} was just created and is at ${amount}. After this autobid, you no longer have enough funds for future autobids!");
         }
         public void NotifyWinner (string winner, string itemName)
         {
@@ -48,7 +45,7 @@ namespace Antiques_Auction_WebApp.Helpers
         }
         public void NotifyItemAwarded (string losingBidder, string itemName, Bid winningBid)
         {
-            Send(GetBidderEmail(losingBidder), $"The {itemName} was awarded!", $"The bidding time on {itemName} has finished and the item was awarded to {winningBid.Bidder} with $ {winningBid.Amount}!");
+            Send(GetBidderEmail(losingBidder), $"The {itemName} was awarded!", $"The bidding time on {itemName} has finished and the item was awarded to {winningBid.Bidder} with ${winningBid.Amount}!");
         }
         private string GetBidderEmail(string bidder)
         {
