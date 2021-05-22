@@ -31,4 +31,30 @@ When prompted to log in, there is a panel for quick login access instead of havi
 However, for future reference, if need be, the following are the credentials to be used:
 - **usernames**: admin1, admin2, user1, user2
 - They all share the same password: password
+
+## Email notifications
+In order for the application to run properly, it is required that you provide the emails for user1 and user2 inside the appsettings.json file under the Emails key as in the below.
+
+```javascript
+  "Emails": {
+    "user1": "user1@example.com",
+    "user2": "user2@example.com"
+  },
+```
+
+## Docker support
+Inside the directory to *Antiques-Auction-WebApp* subfolder.
+
+1. Run the following command to build the docker image
+```bash
+docker build -t antiques-auction-webapp:v1 .
+```
+
+2. Run the following command to create a docker container
+```bash
+docker run -it --rm -p 8080:80 antiques-auction-webapp:v1
+```
+3. Go to the browser and open the following link: http://localhost:8080
+
+
  
